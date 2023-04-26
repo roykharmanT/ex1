@@ -142,6 +142,14 @@ IsraeliQueueError IsraeliQueueUpdateRivalryThreshold(IsraeliQueue q, int new_thr
     return ISRAELIQUEUE_SUCCESS;
 }
 
+int IsraeliQueueSize(IsraeliQueue q){
+    int size = 0;
+    Item current = q->head;
+    while(current){
+        size += 1;
+    }
+    return size;
+}
 
 
 
