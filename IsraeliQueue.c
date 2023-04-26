@@ -138,12 +138,18 @@ IsraeliQueueError IsraeliQueueUpdateFriendshipThreshold(IsraeliQueue q, int new_
 }
 
 IsraeliQueueError IsraeliQueueUpdateRivalryThreshold(IsraeliQueue q, int new_threshold){
+    if(*q == NULL){
+        return ISRAELIQUEUE_BAD_PARAM;
+    }
     q->rivalry_threshold = new_threshold;
     return ISRAELIQUEUE_SUCCESS;
 }
 
 int IsraeliQueueSize(IsraeliQueue q){
     int size = 0;
+    if(*q == NULL){
+        return 0;
+    }
     Item current = q->head;
     while(current){
         size += 1;
@@ -152,6 +158,11 @@ int IsraeliQueueSize(IsraeliQueue q){
 }
 
 
+void* IsraeliQueueDequeue(IsraeliQueue q){
+    Item to_return = q->head;
+    q->head = q->head->next;
+    return to_return;
+}
 
 
 
