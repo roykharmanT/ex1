@@ -132,6 +132,18 @@ IsraeliQueueError IsraeliQueueAddFriendshipMeasure(IsraeliQueue q, FriendshipFun
     return ISRAELIQUEUE_SUCCESS;
 }
 
+IsraeliQueueError IsraeliQueueUpdateFriendshipThreshold(IsraeliQueue q, int new_threshold){
+    q->friendship_threshold = new_threshold;
+    return ISRAELIQUEUE_SUCCESS;
+}
+
+IsraeliQueueError IsraeliQueueUpdateRivalryThreshold(IsraeliQueue q, int new_threshold){
+    q->rivalry_threshold = new_threshold;
+    return ISRAELIQUEUE_SUCCESS;
+}
+
+
+
 
 
 
