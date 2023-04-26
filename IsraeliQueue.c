@@ -48,6 +48,62 @@ void IsraeliQueueDestroy(IsraeliQueue q){
     }
 }
 
+
+int get_rivalry_measure(IsraeliQueue q, Item item_1, Item item_2){
+    int number_of_friendship_measures = sizeof(q->friendship_measures)/sizeof(FriendshipFunction);
+    int sum = 0;
+    for(int i = 0; i < number_of_friendship_measures; ++i){
+        sum += q->friendship_measures[i](item_1, item_2);
+    }
+    return sum/number_of_friendship_measures;
+}
+
+Item get_rivals_behind(IsraeliQueue q, Item friend, Item item_to_insert){
+    Item potential_rival = friend->next;
+    while(potential_rival){
+        int rivalry_measure = get_rivalry_measure(q, potential_rival, item_to_insert);
+        if(rivalry_measure < q->rivalry_threshold & potential_rival->rivals_in_queue < RIVAL_QUOTA){
+            return potential_rival;
+        }
+    }
+    return NULL;
+}
+
+IsraeliQueueError IsraeliQueueEnqueue(IsraeliQueue q, void *ptr){
+    Item potential_friend = q->head;
+    Item item_to_insert = (Item)ptr;
+    int number_of_friendship_measures = sizeof(q->friendship_measures)/sizeof(FriendshipFunction);
+
+    while(potential_friend){
+        if(potential_friend->friends_in_queue > FRIEND_QUOTA){
+            //If friend quota is full continue to the next potential friend
+            potential_friend = potential_friend->next;
+            continue;
+        }
+        for(int i = 0; i < number_of_friendship_measures; ++i){
+            //For each friendship measures check friendship_threshold
+            if(q->friendship_measures[i](item_to_insert, potential_friend) > q->friendship_threshold){
+                //If rival behin
+                Item rival_behind = get_rivals_behind(q, potential_friend, item_to_insert);
+                if(rival_behind){
+                    rival_behind->rivals_in_queue += 1;
+                    potential_friend = rival_behind;
+                    break;
+                }
+                potential_friend->friends_in_queue += 1;
+                item_to_insert->next = potential_friend->next;
+                potential_friend->next = item_to_insert;
+                return ISRAELIQUEUE_SUCCESS;
+            }
+        }
+        potential_friend = potential_friend->next;
+    }
+    item_to_insert->next = NULL;
+    potential_friend->next = item_to_insert;
+    return ISRAELIQUEUE_SUCCESS
+
+}
+
 IsraeliQueueError IsraeliQueueAddFriendshipMeasure(IsraeliQueue q, FriendshipFunction friend_func){
     int array_size = sizeof(q->friendship_measures) / sizeof(FriendshipFunction);
     FriendshipFunction *to_free = q->friendship_measures;
@@ -72,11 +128,6 @@ IsraeliQueueError IsraeliQueueAddFriendshipMeasure(IsraeliQueue q, FriendshipFun
     }
     return ISRAELIQUEUE_SUCCESS;
 }
-
-IsraeliQueueError IsraeliQueueAddFriendshipMeasure(IsraeliQueue, FriendshipFunction){
-
-}
-
 
 
 
