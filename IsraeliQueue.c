@@ -70,6 +70,9 @@ Item get_rivals_behind(IsraeliQueue q, Item friend, Item item_to_insert){
 }
 
 IsraeliQueueError IsraeliQueueEnqueue(IsraeliQueue q, void *ptr){
+    if(*q == NULL){
+        return ISRAELIQUEUE_BAD_PARAM;
+    }
     Item potential_friend = q->head;
     Item item_to_insert = (Item)ptr;
     int number_of_friendship_measures = sizeof(q->friendship_measures)/sizeof(FriendshipFunction);
@@ -108,6 +111,10 @@ IsraeliQueueError IsraeliQueueEnqueue(IsraeliQueue q, void *ptr){
 }
 
 IsraeliQueueError IsraeliQueueAddFriendshipMeasure(IsraeliQueue q, FriendshipFunction friend_func){
+    if(*q == NULL || *friend_func == NULL){
+        return ISRAELIQUEUE_BAD_PARAM;
+    }
+
     int array_size = sizeof(q->friendship_measures) / sizeof(FriendshipFunction);
     FriendshipFunction *to_free = q->friendship_measures;
     FriendshipFunction *new_friendship_measures = malloc(sizeof(FriendshipFunction)*(1+array_size));
@@ -133,6 +140,9 @@ IsraeliQueueError IsraeliQueueAddFriendshipMeasure(IsraeliQueue q, FriendshipFun
 }
 
 IsraeliQueueError IsraeliQueueUpdateFriendshipThreshold(IsraeliQueue q, int new_threshold){
+    if(*q == NULL){
+        return ISRAELIQUEUE_BAD_PARAM;
+    }
     q->friendship_threshold = new_threshold;
     return ISRAELIQUEUE_SUCCESS;
 }
