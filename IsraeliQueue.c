@@ -165,4 +165,15 @@ void* IsraeliQueueDequeue(IsraeliQueue q){
 }
 
 
+bool IsraeliQueueContains(IsraeliQueue q, void *ptr){
+    Item item_to_search = (Item)ptr;
+    Item current = q->head;
+    while(current){
+        if(*item_to_search == *current){
+            return true;
+        }
+    }
+    return false;
+}
+
 
