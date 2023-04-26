@@ -83,25 +83,28 @@ IsraeliQueueError IsraeliQueueEnqueue(IsraeliQueue q, void *ptr){
         for(int i = 0; i < number_of_friendship_measures; ++i){
             //For each friendship measures check friendship_threshold
             if(q->friendship_measures[i](item_to_insert, potential_friend) > q->friendship_threshold){
-                //If rival behin
+
                 Item rival_behind = get_rivals_behind(q, potential_friend, item_to_insert);
                 if(rival_behind){
+                    //If a rival is blocking, increase his enemies in queue and skip to behind the rival
                     rival_behind->rivals_in_queue += 1;
                     potential_friend = rival_behind;
                     break;
                 }
+                // Insert item behind friend
                 potential_friend->friends_in_queue += 1;
                 item_to_insert->next = potential_friend->next;
                 potential_friend->next = item_to_insert;
                 return ISRAELIQUEUE_SUCCESS;
             }
         }
+        //Try the next friend
         potential_friend = potential_friend->next;
     }
+    //If Item can't cut in queue place it at the end of the queue
     item_to_insert->next = NULL;
     potential_friend->next = item_to_insert;
-    return ISRAELIQUEUE_SUCCESS
-
+    return ISRAELIQUEUE_SUCCESS;
 }
 
 IsraeliQueueError IsraeliQueueAddFriendshipMeasure(IsraeliQueue q, FriendshipFunction friend_func){
