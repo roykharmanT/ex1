@@ -5,6 +5,7 @@
 typedef struct item{
     int friends_in_queue;
     int rivals_in_queue;
+    void* ptr;
     struct item* next;
 }*Item;
 
@@ -53,7 +54,7 @@ int get_rivalry_measure(IsraeliQueue q, Item item_1, Item item_2){
     int number_of_friendship_measures = sizeof(q->friendship_measures)/sizeof(FriendshipFunction);
     int sum = 0;
     for(int i = 0; i < number_of_friendship_measures; ++i){
-        sum += q->friendship_measures[i](item_1, item_2);
+        sum += q->friendship_measures[i](item_1->ptr, item_2->ptr);
     }
     return sum/number_of_friendship_measures;
 }
@@ -74,7 +75,7 @@ IsraeliQueueError IsraeliQueueEnqueue(IsraeliQueue q, void *ptr){
         return ISRAELIQUEUE_BAD_PARAM;
     }
     Item potential_friend = q->head;
-    Item item_to_insert = (Item)ptr;
+    Item item_to_insert = {0, 0, ptr, NULL};
     int number_of_friendship_measures = sizeof(q->friendship_measures)/sizeof(FriendshipFunction);
 
     while(potential_friend){
@@ -85,7 +86,7 @@ IsraeliQueueError IsraeliQueueEnqueue(IsraeliQueue q, void *ptr){
         }
         for(int i = 0; i < number_of_friendship_measures; ++i){
             //For each friendship measures check friendship_threshold
-            if(q->friendship_measures[i](item_to_insert, potential_friend) > q->friendship_threshold){
+            if(q->friendship_measures[i](item_to_insert->ptr, potential_friend->ptr) > q->friendship_threshold){
 
                 Item rival_behind = get_rivals_behind(q, potential_friend, item_to_insert);
                 if(rival_behind){
@@ -176,10 +177,10 @@ void* IsraeliQueueDequeue(IsraeliQueue q){
 
 
 bool IsraeliQueueContains(IsraeliQueue q, void *ptr){
-    Item item_to_search = (Item)ptr;
     Item current = q->head;
     while(current){
-        if(*item_to_search == *current){
+        void* compare_ptr = current->ptr;
+        if(*compare_ptr == *ptr){
             return true;
         }
     }
