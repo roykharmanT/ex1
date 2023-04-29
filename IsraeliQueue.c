@@ -71,7 +71,7 @@ Item get_rivals_behind(IsraeliQueue q, Item friend, Item item_to_insert){
 }
 
 IsraeliQueueError IsraeliQueueEnqueue(IsraeliQueue q, void *ptr){
-    if(*q == NULL){
+    if(q == NULL){
         return ISRAELIQUEUE_BAD_PARAM;
     }
     Item potential_friend = q->head;
@@ -106,13 +106,13 @@ IsraeliQueueError IsraeliQueueEnqueue(IsraeliQueue q, void *ptr){
         potential_friend = potential_friend->next;
     }
     //If Item can't cut in queue place it at the end of the queue
-    item_to_insert->next = NULL;
-    potential_friend->next = item_to_insert;
+    
+    potential_friend = item_to_insert;
     return ISRAELIQUEUE_SUCCESS;
 }
 
 IsraeliQueueError IsraeliQueueAddFriendshipMeasure(IsraeliQueue q, FriendshipFunction friend_func){
-    if(*q == NULL || *friend_func == NULL){
+    if(q == NULL || *friend_func == NULL){
         return ISRAELIQUEUE_BAD_PARAM;
     }
 
@@ -133,7 +133,7 @@ IsraeliQueueError IsraeliQueueAddFriendshipMeasure(IsraeliQueue q, FriendshipFun
     new_friendship_measures[index] = friend_func;
     q->friendship_measures = new_friendship_measures;
 
-    if(array_size > 0){
+    if(to_free){
         // Free old array
         free(to_free);
     }
@@ -141,7 +141,7 @@ IsraeliQueueError IsraeliQueueAddFriendshipMeasure(IsraeliQueue q, FriendshipFun
 }
 
 IsraeliQueueError IsraeliQueueUpdateFriendshipThreshold(IsraeliQueue q, int new_threshold){
-    if(*q == NULL){
+    if(q == NULL){
         return ISRAELIQUEUE_BAD_PARAM;
     }
     q->friendship_threshold = new_threshold;
@@ -149,7 +149,7 @@ IsraeliQueueError IsraeliQueueUpdateFriendshipThreshold(IsraeliQueue q, int new_
 }
 
 IsraeliQueueError IsraeliQueueUpdateRivalryThreshold(IsraeliQueue q, int new_threshold){
-    if(*q == NULL){
+    if(q == NULL){
         return ISRAELIQUEUE_BAD_PARAM;
     }
     q->rivalry_threshold = new_threshold;
@@ -158,12 +158,13 @@ IsraeliQueueError IsraeliQueueUpdateRivalryThreshold(IsraeliQueue q, int new_thr
 
 int IsraeliQueueSize(IsraeliQueue q){
     int size = 0;
-    if(*q == NULL){
+    if(q == NULL){
         return 0;
     }
     Item current = q->head;
     while(current){
         size += 1;
+        current = current->next;
     }
     return size;
 }
@@ -180,7 +181,7 @@ bool IsraeliQueueContains(IsraeliQueue q, void *ptr){
     Item current = q->head;
     while(current){
         void* compare_ptr = current->ptr;
-        if(*compare_ptr == *ptr){
+        if(q->comparison_function(compare_ptr, ptr)){
             return true;
         }
     }
