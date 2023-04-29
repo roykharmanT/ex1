@@ -19,7 +19,7 @@ typedef struct IsraeliQueue_t{
 
 
 int get_friendship_measure_size(FriendshipFunction* friendship_measure_array){
-    // Return the Friendship Measuere size
+    // Return the amount of friendship measure in a FriendshipFunction array.
     int size = 0;
     while(*friendship_measure_array[size]){
         ++size;
@@ -128,11 +128,10 @@ IsraeliQueueError IsraeliQueueAddFriendshipMeasure(IsraeliQueue q, FriendshipFun
     if(q == NULL || *friend_func == NULL){
         return ISRAELIQUEUE_BAD_PARAM;
     }
-    int array_size = 0;
 
     FriendshipFunction *to_free = q->friendship_measures;
-    FriendshipFunction *new_friendship_measures = get_friendship_measure_size(q->friendship_measures);
-
+    int array_size = get_friendship_measure_size(q->friendship_measures);
+    FriendshipFunction *new_friendship_measures = (FriendshipFunction*)malloc((array_size + 2) * sizeof(FriendshipFunction));
     if(new_friendship_measures == NULL){
         //If failed to allocate memory return error
         return ISRAELIQUEUE_ALLOC_FAILED;
@@ -143,7 +142,8 @@ IsraeliQueueError IsraeliQueueAddFriendshipMeasure(IsraeliQueue q, FriendshipFun
         new_friendship_measures[index] = q->friendship_measures[index];
     }
     //Assign the new friendship measures array to the israeli queue
-    new_friendship_measures[index] = friend_func;
+    new_friendship_measures[array_size] = friend_func;
+    new_friendship_measures[array_size + 1] = NULL;
     q->friendship_measures = new_friendship_measures;
 
     if(to_free){
