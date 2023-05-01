@@ -18,7 +18,8 @@ typedef struct IsraeliQueue_t{
 }*IsraeliQueue;
 
 
-int get_friendship_measure_size(FriendshipFunction* friendship_measure_array){
+int get_friendship_measure_size(FriendshipFunction* friendship_measure_array)
+{
     // Return the amount of friendship measure in a FriendshipFunction array.
     int size = 0;
     while(*friendship_measure_array[size]){
@@ -28,7 +29,8 @@ int get_friendship_measure_size(FriendshipFunction* friendship_measure_array){
 }
 
 IsraeliQueue IsraeliQueueCreate(FriendshipFunction *friend_function,
- ComparisonFunction comparison_function, int friendship_threshold, int rivalry_threshold){
+ ComparisonFunction comparison_function, int friendship_threshold, int rivalry_threshold)
+ {
     IsraeliQueue new_queue;
     if(new_queue){
         new_queue -> friendship_measures = friend_function;
@@ -49,7 +51,8 @@ IsraeliQueue IsraeliQueueClone(IsraeliQueue q)
     return new_queue;
 }
 
-void IsraeliQueueDestroy(IsraeliQueue q){
+void IsraeliQueueDestroy(IsraeliQueue q)
+{
     Item head = q->head;
     while(head){
         Item to_destroy = head;
@@ -59,7 +62,8 @@ void IsraeliQueueDestroy(IsraeliQueue q){
 }
 
 
-int get_rivalry_measure(IsraeliQueue q, Item item_1, Item item_2){
+int get_rivalry_measure(IsraeliQueue q, Item item_1, Item item_2)
+{
     int number_of_friendship_measures = get_friendship_measure_size(q->friendship_measures);
     int sum = 0;
     for(int i = 0; i < number_of_friendship_measures; ++i){
@@ -68,7 +72,8 @@ int get_rivalry_measure(IsraeliQueue q, Item item_1, Item item_2){
     return sum/number_of_friendship_measures;
 }
 
-Item get_rivals_behind(IsraeliQueue q, Item friend, Item item_to_insert){
+Item get_rivals_behind(IsraeliQueue q, Item friend, Item item_to_insert)
+{
     Item potential_rival = friend->next;
     while(potential_rival){
         int rivalry_measure = get_rivalry_measure(q, potential_rival, item_to_insert);
@@ -79,18 +84,22 @@ Item get_rivals_behind(IsraeliQueue q, Item friend, Item item_to_insert){
     return NULL;
 }
 
-IsraeliQueueError enqueue_item(IsraeliQueue q, Item item_to_insert){
+IsraeliQueueError enqueue_item(IsraeliQueue q, Item item_to_insert)
+{
     Item potential_friend = q->head;
     int number_of_friendship_measures = get_friendship_measure_size(q->friendship_measures);
-    while(potential_friend){
-        if(potential_friend->friends_in_queue > FRIEND_QUOTA){
+    while(potential_friend)
+    {
+        if(potential_friend->friends_in_queue > FRIEND_QUOTA || potential_friend == item_to_insert)
+        {
             //If friend quota is full continue to the next potential friend
             potential_friend = potential_friend->next;
             continue;
         }
         for(int i = 0; i < number_of_friendship_measures; ++i){
             //For each friendship measures check friendship_threshold
-            if(q->friendship_measures[i](item_to_insert->ptr, potential_friend->ptr) > q->friendship_threshold){
+            if(q->friendship_measures[i](item_to_insert->ptr, potential_friend->ptr) > q->friendship_threshold)
+            {
 
                 Item rival_behind = get_rivals_behind(q, potential_friend, item_to_insert);
                 if(rival_behind){
@@ -115,7 +124,8 @@ IsraeliQueueError enqueue_item(IsraeliQueue q, Item item_to_insert){
     return ISRAELIQUEUE_SUCCESS;
 }
 
-IsraeliQueueError IsraeliQueueEnqueue(IsraeliQueue q, void *ptr){
+IsraeliQueueError IsraeliQueueEnqueue(IsraeliQueue q, void *ptr)
+{
     if(q == NULL){
         return ISRAELIQUEUE_BAD_PARAM;
     }
@@ -124,7 +134,8 @@ IsraeliQueueError IsraeliQueueEnqueue(IsraeliQueue q, void *ptr){
     return enqueue_item(q, item_to_insert);
 }
 
-IsraeliQueueError IsraeliQueueAddFriendshipMeasure(IsraeliQueue q, FriendshipFunction friend_func){
+IsraeliQueueError IsraeliQueueAddFriendshipMeasure(IsraeliQueue q, FriendshipFunction friend_func)
+{
     if(q == NULL || *friend_func == NULL){
         return ISRAELIQUEUE_BAD_PARAM;
     }
@@ -153,7 +164,8 @@ IsraeliQueueError IsraeliQueueAddFriendshipMeasure(IsraeliQueue q, FriendshipFun
     return ISRAELIQUEUE_SUCCESS;
 }
 
-IsraeliQueueError IsraeliQueueUpdateFriendshipThreshold(IsraeliQueue q, int new_threshold){
+IsraeliQueueError IsraeliQueueUpdateFriendshipThreshold(IsraeliQueue q, int new_threshold)
+{
     if(q == NULL){
         return ISRAELIQUEUE_BAD_PARAM;
     }
@@ -161,7 +173,8 @@ IsraeliQueueError IsraeliQueueUpdateFriendshipThreshold(IsraeliQueue q, int new_
     return ISRAELIQUEUE_SUCCESS;
 }
 
-IsraeliQueueError IsraeliQueueUpdateRivalryThreshold(IsraeliQueue q, int new_threshold){
+IsraeliQueueError IsraeliQueueUpdateRivalryThreshold(IsraeliQueue q, int new_threshold)
+{
     if(q == NULL){
         return ISRAELIQUEUE_BAD_PARAM;
     }
@@ -169,7 +182,8 @@ IsraeliQueueError IsraeliQueueUpdateRivalryThreshold(IsraeliQueue q, int new_thr
     return ISRAELIQUEUE_SUCCESS;
 }
 
-int IsraeliQueueSize(IsraeliQueue q){
+int IsraeliQueueSize(IsraeliQueue q)
+{
     int size = 0;
     if(q == NULL){
         return 0;
@@ -183,14 +197,16 @@ int IsraeliQueueSize(IsraeliQueue q){
 }
 
 
-void* IsraeliQueueDequeue(IsraeliQueue q){
+void* IsraeliQueueDequeue(IsraeliQueue q)
+{
     Item to_return = q->head;
     q->head = q->head->next;
     return to_return;
 }
 
 
-bool IsraeliQueueContains(IsraeliQueue q, void *ptr){
+bool IsraeliQueueContains(IsraeliQueue q, void *ptr)
+{
     Item current = q->head;
     while(current){
         void* compare_ptr = current->ptr;
@@ -202,7 +218,8 @@ bool IsraeliQueueContains(IsraeliQueue q, void *ptr){
 }
 
 
-IsraeliQueueError improve_position(IsraeliQueue q, Item item){
+IsraeliQueueError improve_position(IsraeliQueue q, Item item)
+{
     if(item->next){
         improve_position(q, item->next);
     }
@@ -210,12 +227,14 @@ IsraeliQueueError improve_position(IsraeliQueue q, Item item){
     return ISRAELIQUEUE_SUCCESS;
 }
 
-IsraeliQueueError IsraeliQueueImprovePositions(IsraeliQueue q){
+IsraeliQueueError IsraeliQueueImprovePositions(IsraeliQueue q)
+{
     if(q == NULL){
         return ISRAELIQUEUE_BAD_PARAM;
     }
 
     return improve_position(q, q->head);
+<<<<<<< HEAD
 }
 
 void MergeThreshold(IsraeliQueue* qarr, int *avg_friend_threshold, int* avg_rivalry_threshold)
