@@ -1,7 +1,7 @@
 #include "IsraeliQueue.h"
 #include <stdlib.h>
 #include <stdio.h>
-
+#include <math.h>
 typedef struct item{
     int friends_in_queue;
     int rivals_in_queue;
@@ -216,5 +216,61 @@ IsraeliQueueError IsraeliQueueImprovePositions(IsraeliQueue q){
     }
 
     return improve_position(q, q->head);
+}
+
+void MergeThreshold(IsraeliQueue* qarr, int *avg_friend_threshold, int* avg_rivalry_threshold)
+{
+    int index = 0, sum_friendship = 0, sum_rivalry = 1,sum_friend_array = 0,sum_queues = 0;
+    while(qarr[index])
+    {
+        sum_friendship += qarr[index]->friendship_threshold;
+        sum_rivalry *= qarr[index]->rivalry_threshold;
+        sum_friend_array += get_friendship_measure_size(qarr[index]->friendship_measures);
+        sum_queues += IsraeliQueueSize(qarr[index]);
+        index++;
+    }
+    *avg_friend_threshold = ceil(double(sum_friendship)/double(index));
+    *avg_rivalry_threshold = ceil(pow(double(sum_rivalry),1.0/double(index)));
+}
+void MergeFunction(IsraeliQueue* qarr, FriendshipFunction *friendship_func_to_queue)
+{
+    int index = 0, current = 0;
+    FriendshipFunction* temp_func;
+    while(qarr[index])
+    {
+        temp_func = qarr[index]->friendship_measures;
+        while(temp_func){
+            friendship_func_to_queue[current] = temp_func;
+            temp_func++;
+            current++;
+        }
+        index++;
+    }
+}
+IsraeliQueue IsraeliQueueMerge(IsraeliQueue* qarr ,ComparisonFunction compare_func)
+{
+    int avg_friend_threshold, avg_rivalry_threshold;
+    MergeThreshold(qarr, &avg_friend_threshold, &avg_rivalry_threshold);
+    FriendshipFunction *friendship_func = (FriendshipFunction*)malloc(sum_friend_array*sizeof(FriendshipFunction));
+    MergeFunction(qarr, friendship_func);
+    IsraeliQueue new_queue = IsraeliQueueCreate(friendship_func, compare_func, avg_friend_threshold, avg_rivalry_threshold);
+    void *ptr;
+    bool remaining = true;
+    while(remaining){
+        int index = 0;
+        remaining = false;
+        while(qarr[index]){
+            if(qarr[index]->head){
+                qarr[index]->head->rivals_in_queue = 0;
+                qarr[index]->head->friends_in_queue = 0;
+                ptr = qarr[index]->head->ptr;
+                IsraeliQueueEnqueue(new_queue, ptr);
+                remaining = true;
+            }
+            index++;
+        }
+    }
+    return new_queue;
+
 }
 
