@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+
 typedef struct item{
     int friends_in_queue;
     int rivals_in_queue;
@@ -280,16 +281,14 @@ IsraeliQueue IsraeliQueueMerge(IsraeliQueue* qarr ,ComparisonFunction compare_fu
         remaining = false;
         while(qarr[index]){
             if(qarr[index]->head){
-                qarr[index]->head->rivals_in_queue = 0;
-                qarr[index]->head->friends_in_queue = 0;
                 ptr = qarr[index]->head->ptr;
                 IsraeliQueueEnqueue(new_queue, ptr);
+                qarr[index]->head = qarr[index]->head->next;
                 remaining = true;
             }
             index++;
         }
     }
     return new_queue;
-
 }
 
