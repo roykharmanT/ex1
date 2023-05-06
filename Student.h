@@ -17,8 +17,11 @@ typedef struct Student{
 typedef struct Hacker{
     char* hacker_id;
     int* desired_courses;
+    int size_desired_courses;
     char** friends_id;
+    int size_friends_id;
     char** rivals_id;
+    int size_rivals_id;
 }*Hacker;
 
 //parse line data into student
@@ -30,23 +33,6 @@ Student mallocStudent();
 Hacker mallocHacker(int num_of_courses, int num_of_friends, int num_of_rivals);
 
 int stringToInt(char* str);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 #endif //EX1_STUDENT_H

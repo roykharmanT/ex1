@@ -9,7 +9,7 @@
 
 Student mallocStudent()
 {
-    Student student = (Student)malloc(sizeof(*Student));
+    Student student = (Student)malloc(sizeof(*student));
     if (student == NULL) {
         return NULL;
     }
@@ -32,7 +32,7 @@ Student mallocStudent()
         return NULL;
     }
     student->department = (char*)malloc(sizeof(char) * MAX_STR_LENGTH);
-    if (student->deparment == NULL) {
+    if (student->department == NULL) {
         free(student->surname);
         free(student->first_name);
         free(student->city);
@@ -60,20 +60,20 @@ Student parseLineToStudent(char* line)
     if(new_student == NULL)
         return NULL;
     char* space = " ";
-    char* token = strtok_s(token, line, &space);
-    new_student->student_id = _strdup(token);
-    token = strtok_s(token, NULL, &space);
+    char* token = strtok(line, space);
+    new_student->student_id = strdup(token);
+    token = strtok(NULL, space);
     new_student->total_credits = stringToInt(token);
-    token = strtok_s(token, NULL, &space);
+    token = strtok(NULL, space);
     new_student->gpa = stringToInt(token);
-    token = strtok_s(token, NULL, &space);
-    new_student->first_name = _strdup(token);
-    token = strtok_s(token, NULL, &space);
-    new_student->surname = _strdup(token);
-    token = strtok_s(token, NULL, &space);
-    new_student->city = _strdup(token);
-    token = strtok_s(token, NULL, &space);
-    new_student->department = _strdup(token);
+    token = strtok(NULL, space);
+    new_student->first_name = strdup(token);
+    token = strtok(NULL, space);
+    new_student->surname = strdup(token);
+    token = strtok(NULL, space);
+    new_student->city = strdup(token);
+    token = strtok(NULL, space);
+    new_student->department = strdup(token);
     return new_student;
 }
 
@@ -90,12 +90,21 @@ int stringToInt(const char* str)
 
 void destroyStudent(Student student)
 {
-    free(student->student_id);
-    free(student->surname);
-    free(student->first_name);
-    free(student->city);
-    free(student->department);
-    free(student);
+    if(student)
+    {
+        if(student -> student_id)
+            free(student->student_id);
+        if(student -> surname)
+            free(student->surname);
+        if(student->first_name)
+            free(student->first_name);
+        if(student->city)
+            free(student->city);
+        if(student->department)
+            free(student->department);
+        free(student);
+    }
+
 }
 
 Hacker mallocHacker(int num_of_courses, int num_of_friends, int num_of_rivals)

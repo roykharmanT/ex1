@@ -200,7 +200,7 @@ int IsraeliQueueSize(IsraeliQueue q)
 
 void* IsraeliQueueDequeue(IsraeliQueue q)
 {
-    Item to_return = q->head;
+    Item to_return = q->head->ptr;
     q->head = q->head->next;
     return to_return;
 }
@@ -291,4 +291,3 @@ IsraeliQueue IsraeliQueueMerge(IsraeliQueue* qarr ,ComparisonFunction compare_fu
     }
     return new_queue;
 }
-
