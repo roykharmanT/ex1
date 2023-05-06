@@ -129,21 +129,21 @@ EnrollmentSystem mallocEnrollmentSystem(File* students, File* courses, File* hac
     students_length = getNumOfLines(students);
     courses_length = getNumOfLines(courses);
     hackers_length = getNumOfLines(hackers);
-    EnrollmentSystem enrollmentSystem = (EnrollmentSystem)malloc(sizeof (*EnrollmentSystem));
+    EnrollmentSystem enrollmentSystem = (EnrollmentSystem)malloc(sizeof(*EnrollmentSystem));
     if(enrollmentSystem == NULL)
         return NULL;
-    enrollmentSystem->students = (Student*)malloc(students_length*sizeof(Student));
+     enrollmentSystem->students = (Student*)malloc(students_length*sizeof(*Student));
     if(enrollmentSystem->students == NULL) {
         free(enrollmentSystem);
         return NULL;
     }
-    enrollmentSystem->courses = (Course*)malloc(courses_length*sizeof(Course));
+    enrollmentSystem->courses = (Course*)malloc(courses_length*sizeof(*Course));
     if(enrollmentSystem->courses == NULL) {
         free(enrollmentSystem->students);
         free(enrollmentSystem);
         return NULL;
     }
-    enrollmentSystem->hackers = (Hacker*)malloc(hackers_length*sizeof(Hacker));
+    enrollmentSystem->hackers = (Hacker*)malloc(hackers_length*sizeof(*Hacker));
     if(enrollmentSystem->hackers == NULL) {
         free(enrollmentSystem->students);
         free(enrollmentSystem->courses);
