@@ -5,7 +5,7 @@
 #define MAX_LENGTH 100
 
 
-EnrollmentSystem createEnrollment(File* students, File* courses, File* hackers)
+EnrollmentSystem createEnrollment(FILE* students, FILE* courses, FILE* hackers)
 {
     EnrollmentSystem enrollmentSystem = mallocEnrollmentSystem(students, courses, hackers);
     if(enrollmentSystem == NULL)
@@ -66,7 +66,7 @@ void putHackersInEnrollment(FILE* hackers, EnrollmentSystem enrollmentSystem)
 
 Course parseLineToCourse(char* line)
 {
-    Course course = (Course)malloc(sizeof (*Course));
+    Course course = (Course)malloc(sizeof (*course));
     if(course == NULL)
         return NULL;
     course->course_queue = IsraeliQueueCreate();// should put the friendship function array and comparison
@@ -123,27 +123,27 @@ int getNumOfLines(FILE* file_to_read)
     return lines_counter;
 }
 
-EnrollmentSystem mallocEnrollmentSystem(File* students, File* courses, File* hackers)
+EnrollmentSystem mallocEnrollmentSystem(FILE* students, FILE* courses, FILE* hackers)
 {
     int students_length, courses_length, hackers_length;
     students_length = getNumOfLines(students);
     courses_length = getNumOfLines(courses);
     hackers_length = getNumOfLines(hackers);
-    EnrollmentSystem enrollmentSystem = (EnrollmentSystem)malloc(sizeof(*EnrollmentSystem));
+    EnrollmentSystem enrollmentSystem = (EnrollmentSystem)malloc(sizeof(*enrollmentSystem));
     if(enrollmentSystem == NULL)
         return NULL;
-     enrollmentSystem->students = (Student*)malloc(students_length*sizeof(*Student));
+     enrollmentSystem->students = (Student*)malloc(students_length*sizeof(Student));
     if(enrollmentSystem->students == NULL) {
         free(enrollmentSystem);
         return NULL;
     }
-    enrollmentSystem->courses = (Course*)malloc(courses_length*sizeof(*Course));
+    enrollmentSystem->courses = (Course*)malloc(courses_length*sizeof(Course));
     if(enrollmentSystem->courses == NULL) {
         free(enrollmentSystem->students);
         free(enrollmentSystem);
         return NULL;
     }
-    enrollmentSystem->hackers = (Hacker*)malloc(hackers_length*sizeof(*Hacker));
+    enrollmentSystem->hackers = (Hacker*)malloc(hackers_length*sizeof(Hacker));
     if(enrollmentSystem->hackers == NULL) {
         free(enrollmentSystem->students);
         free(enrollmentSystem->courses);
