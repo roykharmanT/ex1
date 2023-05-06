@@ -46,10 +46,10 @@ void putStudentInEnrollment(FILE* students, EnrollmentSystem enrollmentSystem);
 void putCoursesInEnrollment(FILE* courses, EnrollmentSystem enrollmentSystem);
 
 void putHackersInEnrollment(FILE* hackers, EnrollmentSystem enrollmentSystem);
-
-
-
-
+//get the length of a file
+int getNumOfLines(FILE* file_to_read);
+//allocate an enrollment system
+EnrollmentSystem mallocEnrollmentSystem(File* students, File* courses, File* hackers);
 
 
 

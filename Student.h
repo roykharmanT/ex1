@@ -1,7 +1,7 @@
 #ifndef EX1_STUDENT_H
 #define EX1_STUDENT_H
 
-#define ID_LENGTH 10
+#define ID_LENGTH 9
 #define MAX_STR_LENGTH 30
 
 typedef struct Student{
@@ -24,10 +24,12 @@ typedef struct Hacker{
 //parse line data into student
 Student parseLineToStudent(char* line);
 
-//allocates a new student
+//allocates new student
 Student mallocStudent();
+//allocates new hacker
+Hacker mallocHacker(int num_of_courses, int num_of_friends, int num_of_rivals);
 
-
+int stringToInt(char* str);
 
 
 

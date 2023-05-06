@@ -39,7 +39,7 @@ Student mallocStudent()
         free(student);
         return NULL;
     }
-    student->student_id = (char*)malloc(sizeof(char) * ID_LENGTH);
+    student->student_id = (char*)malloc(sizeof(char) * (ID_LENGTH + 1));
     if (student->student_id == NULL) {
         free(student->surname);
         free(student->first_name);
@@ -59,22 +59,94 @@ Student parseLineToStudent(char* line)
     Student new_student = mallocStudent();
     if(new_student == NULL)
         return NULL;
-    char* token = strtok_s(token, line, NULL);
-    new_student->student_id = token;
-    token = strtok_s(token, NULL, NULL);
-    new_student->total_credits = token;
-    token = strtok_s(token, NULL, NULL);
-    new_student->gpa = token;
-    token = strtok_s(token, NULL, NULL);
-    new_student->first_name = token;
-    token = strtok_s(token, NULL, NULL);
-    new_student->surname = token;
-    token = strtok_s(token, NULL, NULL);
-    new_student->city = token;
-    token = strtok_s(token, NULL, NULL);
-    new_student->department = token;
+    char* space = " ";
+    char* token = strtok_s(token, line, &space);
+    new_student->student_id = _strdup(token);
+    token = strtok_s(token, NULL, &space);
+    new_student->total_credits = stringToInt(token);
+    token = strtok_s(token, NULL, &space);
+    new_student->gpa = stringToInt(token);
+    token = strtok_s(token, NULL, &space);
+    new_student->first_name = _strdup(token);
+    token = strtok_s(token, NULL, &space);
+    new_student->surname = _strdup(token);
+    token = strtok_s(token, NULL, &space);
+    new_student->city = _strdup(token);
+    token = strtok_s(token, NULL, &space);
+    new_student->department = _strdup(token);
     return new_student;
 }
 
+int stringToInt(const char* str)
+{
+    int index = 0, number = 0;
+    while(str[index]){
+        number = (number*10) + (str[index] - '0');
+        index++;
+    }
+    return number;
+}
 
+
+void destroyStudent(Student student)
+{
+    free(student->student_id);
+    free(student->surname);
+    free(student->first_name);
+    free(student->city);
+    free(student->department);
+    free(student);
+}
+
+Hacker mallocHacker(int num_of_courses, int num_of_friends, int num_of_rivals)
+{
+    Hacker new_hacker = (Hacker)malloc(sizeof(*Hacker));
+    if(new_hacker == NULL)
+        return NULL;
+    new_hacker->hacker_id = (char*)malloc((ID_LENGTH + 1)*sizeof(char));
+    if(new_hacker->hacker_id == NULL){
+        free(new_hacker);
+        return NULL;
+    }
+    new_hacker->desired_courses = (int*)malloc(num_of_courses*sizeof (int));
+    if(new_hacker->desired_courses == NULL){
+        free(new_hacker->hacker_id);
+        free(new_hacker);
+        return NULL;
+    }
+    new_hacker->friends_id = (char**)malloc(num_of_friends* sizeof(char*));
+    if(new_hacker->friends_id != NULL){
+        for(int i = 0; i < num_of_friends; i++;){
+            new_hacker->friends_id[i] = (char *)malloc((ID_LENGTH + 1)* sizeof(char));
+            if(new_hacker->friends_id[i] == NULL){
+                for(int j = 0; j < i; j++){
+                    free(new_hacker->friends_id[j]);
+                }
+                free(new_hacker->hacker_id);
+                free(new_hacker);
+                return NULL;
+            }
+        }
+    }
+
+    new_hacker->rivals_id = (char**)malloc(num_of_rivals* sizeof(char*));
+    if(new_hacker->rivals_id != NULL){
+        for(int i = 0; i < num_of_rivals; i++;){
+            new_hacker->rivals_id[i] = (char *)malloc((ID_LENGTH + 1)* sizeof(char));
+            if(new_hacker->rivals_id[i] == NULL){
+                for(int j = 0; j < i; j++){
+                    free(new_hacker->rivals_id[j]);
+                }
+                for(int k = 0; k < num_of_friends; k++){
+                    free(new_hacker->friends_id[k]);
+                }
+                free(new_hacker->hacker_id);
+                free(new_hacker);
+                return NULL;
+            }
+        }
+    }
+    return new_hacker;
+    //its pretty disgusting but it is what it is
+}
 
