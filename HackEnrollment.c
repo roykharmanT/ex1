@@ -3,6 +3,10 @@
 #include <stdio.h>
 #include <string.h>
 #define MAX_LENGTH 100
+#define FRIENDSHIP_THRESHOLD 20
+#define RIVAL_THRESHOLD 0
+#define FRIEND_SCORE 20
+#define RIVAL_SCORE -20
 
 
 EnrollmentSystem createEnrollment(FILE* students, FILE* courses, FILE* hackers)
@@ -63,27 +67,70 @@ void putHackersInEnrollment(FILE* hackers, EnrollmentSystem enrollmentSystem)
 
 }
 
-
 Course parseLineToCourse(char* line)
 {
     Course course = (Course)malloc(sizeof (*course));
     if(course == NULL)
         return NULL;
-    course->course_queue = IsraeliQueueCreate();// should put the friendship function array and comparison
+    FriendshipFunction* friendship_measures = (FriendshipFunction*)malloc(sizeof(FriendshipFunction));
+    friendship_measures[0] = NULL;
+    course->course_queue = IsraeliQueueCreate(friendship_measures, compare_id, FRIENDSHIP_THRESHOLD, RIVAL_THRESHOLD);
     if(course->course_queue == NULL){
         free(course);
         return NULL;
     }
     char* space = " ";
-    char* token = strtok_s(token, line, &space);
+    char* token = strtok(line, space);
     course->course_number = stringToInt(token);
-    token = strtok_s(token, NULL, &space);
+    token = strtok(NULL, space);
     course->size = stringToInt(token);
     return course;
 }
 
+bool is_hacker_friend(Hacker hacker, Student student){
+    for(int i = 0; i < hacker->size_friends_id; ++i)
+    {
+        if(strcmp(hacker->friends_id[i], student->student_id) == 0)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool is_hacker_rival(Hacker hacker, Student student){
+    for(int i = 0; i < hacker->size_rivals_id; ++i)
+    {
+        if(strcmp(hacker->rivals_id[i], student->student_id) == 0)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+int is_friend_or_rival(Hacker hacker, Student student){
+//Israeli queue friendship measure
+    if(is_hacker_friend(hacker, student)){
+        return FRIEND_SCORE;
+    }
+    if(is_hacker_rival(hacker, student))
+    {
+        return RIVAL_SCORE;
+    }
+    return 0;
+}
+
+int compare_id(Hacker hacker, Student student)
+//Israeli queue comparison function
+{
+    if(strcmp(hacker->hacker_id, student->student_id) == 0)
+        return 1;
+    return 0;
+}
 
 int nameDifferences(Student first, Student second)
+//Israeli queue friendship measure
 {
     int index = 0, sum = 0;
     while(first->first_name[index] && second->first_name[index]){
@@ -100,6 +147,7 @@ int nameDifferences(Student first, Student second)
 
 
 int idDifferences(Student first, Student second)
+//Israeli queue friendship measure
 {
     int index = 0, first_id = 0, second_id = 0;
     for(int i = 0;i < ID_LENGTH; i++){
@@ -186,4 +234,111 @@ void putCoursesOrStudentsInEnrollment(FILE* file_to_read, EnrollmentSystem enrol
         free(line);
     }
 
+}
+
+
+Student find_student_hacker(Hacker hacker, EnrollmentSystem sys)
+{
+    for(int i = 0; i < sys->index_students; ++i){
+        Student student = sys->students[i];
+        if(strcmp(student->student_id, hacker->hacker_id) == 0){
+            return student;
+        }
+    }
+}
+
+Course get_course(int course_number, EnrollmentSystem sys){
+    for(int k = 0; k < sys->index_courses; ++k){
+        Course course = sys->courses[k];
+        if(course->course_number == course_number){
+            return course;
+        }
+    }
+    return NULL;
+}
+
+IsraeliQueueError enqueue_hacker(Hacker hacker, EnrollmentSystem sys){
+    Student student_hacker = find_student_hacker(hacker, sys);
+    IsraeliQueueError success = ISRAELI_QUEUE_ERROR;
+    for(int j = 0; j < hacker->size_desired_courses; ++j){
+        int desired_course = hacker->desired_courses[j];
+        Course course = get_course(desired_course, sys);
+        assert(course);
+        if(course->course_number == desired_course)
+        {
+            IsraeliQueueError success = IsraeliQueueEnqueue(course->course_queue, student_hacker);
+        }
+    }
+    return success;
+}
+
+bool student_in_course(Student student, Course course){
+    int counter = 0;
+    IsraeliQueue checking_queue = IsraeliQueueClone(course->course_queue);
+    while(counter < course->size){
+        Student head = IsraeliQueueDequeue(checking_queue);
+        if(head == student){
+            IsraeliQueueDestroy(checking_queue);
+            return true;
+        }
+        ++counter;
+    }
+    IsraeliQueueDestroy(checking_queue);
+    return false;
+
+}
+
+bool hacker_got_in(Hacker hacker, EnrollmentSystem sys){
+    Student student_hacker = find_student_hacker(hacker, sys);
+    int required_courses = hacker->size_desired_courses >= 2 ? 2 : 1;
+    for(int j = 0; j < hacker->size_desired_courses; ++j){
+        Course course = get_course(hacker->desired_courses[j], sys);
+        if(student_in_course(student_hacker, course)){
+            --required_courses;
+            if(required_courses == 0){
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+Hacker hacker_left_out(EnrollmentSystem sys){
+    for(int i = 0; i < sys->index_hackers; ++i){
+        Hacker hacker = sys->hackers[i];
+        if(!hacker_got_in(hacker, sys)){
+            return hacker;
+        }
+    }
+    return NULL;
+}
+
+void write_enrollment_queue(FILE* out, Course course){
+    fprintf(out, "%d", course->course_number);
+    Student head = IsraeliQueueDequeue(course->course_queue);
+    while(head){
+        fprintf(out, " %s", head);
+        head = IsraeliQueueDequeue(course->course_queue);
+    }
+    fprintf(out, "\n");
+}
+
+void hackEnrollment(EnrollmentSystem sys, FILE* out)
+{
+    for(int i = 0; i < sys->index_hackers; ++i)
+    {
+        Hacker hacker = sys->hackers[i];
+        IsraeliQueueError enqueue_success = enqueue_hacker(hacker, sys);
+        assert(enqueue_success == ISRAELIQUEUE_SUCCESS);
+    }
+
+    Hacker left_out = hacker_left_out(sys);
+    if(left_out){
+        fprintf("Cannot satisfy constraints for %s", left_out->hacker_id);
+        return;
+    }
+    for(int i = 0; i < sys->index_courses; ++i){
+        Course course = sys->courses[i];
+        write_enrollment_queue(out, course);
+    }
 }
