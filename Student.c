@@ -150,3 +150,81 @@ Hacker mallocHacker(int num_of_courses, int num_of_friends, int num_of_rivals)
     //its pretty disgusting but it is what it is
 }
 
+void destroyHacker(Hacker hacker)
+{
+
+}
+
+void parseLineToHacker(Hacker hacker, char* line, int line_number)
+{
+    if(line[0] != '\n'){
+        char* space = " ";
+        char* token;
+        switch (line_number)
+        {
+            case 0:
+                token = strtok(line, space);
+                hacker->hacker_id = strdup(token);
+                break;
+            case 1:
+                int num_of_courses = getNumOfStringsInTheLine(line);
+                hacker->desired_courses = (int*)malloc(num_of_courses * sizeof(int));
+                if(hacker->desired_courses == NULL)
+                    destroyHacker(hacker);
+                break;
+            case 2:
+                bool success;
+                int num_of_friends = getNumOfStringsInTheLine(line);
+                success = mallocHackerFriendsOrRivals(hacker, num_of_friends, 'f');
+                if(!success) {
+                    destroyHacker(hacker);
+                    return;
+                }
+                for(int i = 0;i < num_of_friends; i++){
+                    token = strtok(line, space);//need to progress the line
+                    hacker->friends_id[i] = strdup(token);
+                }
+
+        }
+    }
+}
+
+bool mallocHackerFriendsOrRivals(Hacker hacker, int num, char type)
+{
+    if(type == 'f')
+    {
+        hacker->friends_id = (char **) malloc(num * sizeof(char *));
+        if (hacker->friends_id != NULL) {
+            for (int i = 0; i < num; i++;){
+                hacker->friends_id[i] = (char *) malloc((ID_LENGTH + 1) * sizeof(char));
+                if (hacker->friends_id[i] == NULL) {
+                    destroyHacker(hacker);
+                    return false;
+                }
+            }
+        }
+        else {
+            destroyHacker(hacker);
+            return false;
+        }
+    }
+    //if we want to allocate rivals
+    else
+    {
+        hacker->rivals_id = (char**)malloc(num * sizeof(char*));
+        if(hacker->rivals_id != NULL){
+            for(int i = 0; i < num; i++;){
+                new_hacker->rivals_id[i] = (char *)malloc((ID_LENGTH + 1)* sizeof(char));
+                if(new_hacker->rivals_id[i] == NULL){
+                    destroyHacker(hacker);
+                    return false;
+                }
+            }
+        }
+        else {
+            destroyHacker(hacker);
+            return false;
+        }
+    }
+    return true;
+}

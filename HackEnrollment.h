@@ -2,6 +2,7 @@
 #define EX1_HACKENROLLMENT_H
 #include "IsraeliQueue.h"
 #include "Student.h"
+#include <stdio.h>
 
 typedef struct Course{
     IsraeliQueue course_queue;
@@ -50,8 +51,8 @@ void putHackersInEnrollment(FILE* hackers, EnrollmentSystem enrollmentSystem);
 int getNumOfLines(FILE* file_to_read);
 //allocate an enrollment system
 EnrollmentSystem mallocEnrollmentSystem(File* students, File* courses, File* hackers);
-
-
+//return how many strings in the line
+int getNumOfStringsInTheLine(char* line);
 
 
 

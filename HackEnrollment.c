@@ -60,10 +60,54 @@ void putCoursesInEnrollment(FILE* courses, EnrollmentSystem enrollmentSystem)
 
 void putHackersInEnrollment(FILE* hackers, EnrollmentSystem enrollmentSystem)
 {
+    if(hackers == NULL)
+        return;
+    //each hacker has 4 lines that describes him
+    enrollmentSystem->hackers = (Hacker*) malloc((getNumOfLines(hackers) / 4)* sizeof(Hacker));
+    if(enrollmentSystem->hackers == NULL)
+        return;
+    char* line = (char *) malloc(MAX_LENGTH * sizeof(char));
+    if(line == NULL) {
+        free(enrollmentSystem->hackers);
+        return;
+    }
+
+    int num_of_friends, num_of_courses, num_of_rivals, index = 0, current = 0;
+    char* result = NULL;
+    while(true){
+        result = fgets(line, MAX_LENGTH, hackers);
+        if(result == NULL)
+            break;
+        parseLineToHacker(enrollmentSystem->hackers[enrollmentSystem->index_hackers], result, (index % 4));
+        index++;
+        if(index % 4 == 0)
+            enrollmentSystem->index_hackers++;
+    }
+    num_of_courses = getNumOfStringsInTheLine(line);
+    result = fgets(line, MAX_LENGTH, hackers);
+    if(result != NULL)
+        num_of_friends = getNumOfStringsInTheLine(line);
+    result = fgets(line, MAX_LENGTH, hackers);
+    if(result != NULL)
+        num_of_rivals = getNumOfStringsInTheLine(line);
+/*
+        Hacker hacker_into_enrollment = mallocHacker(num_of_courses,num_of_friends,num_of_rivals);
+        if(new_hacker != NULL)
+            enrollmentSystem->hackers[enrollmentSystem->index_hackers] = hacker_into_enrollment;
+ */
 
 }
 
-
+int getNumOfStringsInTheLine(char* line)
+{
+    int index = 0, cnt = 0;
+    while(line[index] != '\n'){
+        if(line[index] == ' ')
+            cnt++;
+        index++;
+    }
+    return cnt;
+}
 Course parseLineToCourse(char* line)
 {
     Course course = (Course)malloc(sizeof (*Course));
@@ -109,6 +153,34 @@ int idDifferences(Student first, Student second)
     return abs(first_id - second_id);
 }
 
+void getMaxStrAndLineLength(FILE* file_to_read, int* max_str, int* max_line)
+{
+    if(file_to_read != NULL) {
+        int ch, cnt_str = 0, cnt_line = 0;
+        while (true) {
+            ch = fgetc(file_to_read);
+            if (ch == EOF)
+                break;
+            if (ch == ' ') {
+                if (cnt_str > *max_str) {
+                    *max_str = cnt_str;
+                }
+                cnt_str = 0;
+            }
+            else
+                cnt_str++;
+            if (ch == '\n') {
+                if (cnt_line > *max_line) {
+                    *max_line = cnt_line;
+                }
+                cnt_line = 0;
+            }
+            else
+                cnt_line++;
+        }
+    }
+    rewind(file_to_read);
+}
 int getNumOfLines(FILE* file_to_read)
 {
     int ch, lines_counter = 0;
