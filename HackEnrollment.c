@@ -26,18 +26,23 @@ void putStudentInEnrollment(FILE* students, EnrollmentSystem enrollmentSystem)
 {
     if (students != NULL) {
         char *result = NULL;
-        char *student_line = (char *) malloc(MAX_LENGTH * sizeof(char));
+        int max_line_length = getMaxLineLength(students);
+        int max_str_length = getMaxStrLength(students);
+        char *student_line = (char *) malloc(max_line_length * sizeof(char));
+        if(student_line == NULL)
+            return;
         while (true) {
-            result = fgets(student_line, MAX_LENGTH, students);
+            result = fgets(student_line, max_line_length, students);
             if (result == NULL)
                 break;
-            Student student_into_enrollment = parseLineToStudent(result);
+            Student student_into_enrollment = parseLineToStudent(result, max_str_length);
             if(student_into_enrollment == NULL)
                 break;
             enrollmentSystem->students[enrollmentSystem->index_students] = student_into_enrollment;
             enrollmentSystem->index_students++;
         }
         free(student_line);
+        rewind(students);
     }
 }
 
@@ -45,11 +50,12 @@ void putCoursesInEnrollment(FILE* courses, EnrollmentSystem enrollmentSystem)
 {
     if(courses != NULL) {
         char *result = NULL;
-        char *course_line = (char *) malloc(MAX_LENGTH * sizeof(char));
+        int max_line_length = getMaxLineLength(courses);
+        char *course_line = (char *) malloc(max_line_length * sizeof(char));
         if(course_line == NULL)
             return;
         while (true) {
-            result = fgets(course_line, MAX_LENGTH, courses);
+            result = fgets(course_line, max_line_length, courses);
             if (result == NULL)
                 break;
             Course course_into_enrollment = parseLineToCourse(course_line);
@@ -57,6 +63,7 @@ void putCoursesInEnrollment(FILE* courses, EnrollmentSystem enrollmentSystem)
             enrollmentSystem->index_courses++;
         }
         free(course_line);
+        rewind(courses);
     }
 
 }
@@ -64,17 +71,50 @@ void putCoursesInEnrollment(FILE* courses, EnrollmentSystem enrollmentSystem)
 
 void putHackersInEnrollment(FILE* hackers, EnrollmentSystem enrollmentSystem)
 {
+    if(hackers == NULL)
+        return;
+    int max_line_length = getMaxLineLength(hackers);
+    char* line = (char *) malloc(max_line_length * sizeof(char));
+    if(line == NULL) {
+        return;
+    }
 
+    int index = 0;
+    char* result = NULL;
+    while(true){
+        result = fgets(line, max_line_length, hackers);
+        if(result == NULL)
+            break;
+        parseLineToHacker(enrollmentSystem->hackers[enrollmentSystem->index_hackers], result, (index % 4));
+        index++;
+        if(index % 4 == 0)
+            enrollmentSystem->index_hackers++;
+    }
+    rewind(hackers);
 }
 
+<<<<<<< HEAD
+int getNumOfStringsInTheLine(char* line)
+{
+    int index = 0, cnt = 0;
+    while(line[index] != '\n'){
+        if(line[index] == ' ')
+            cnt++;
+        index++;
+    }
+    return cnt;
+}
+=======
+>>>>>>> main
 Course parseLineToCourse(char* line)
 {
-    Course course = (Course)malloc(sizeof (*course));
+    Course course = (Course)malloc(sizeof(*course));
     if(course == NULL)
         return NULL;
     FriendshipFunction* friendship_measures = (FriendshipFunction*)malloc(sizeof(FriendshipFunction));
     friendship_measures[0] = NULL;
     course->course_queue = IsraeliQueueCreate(friendship_measures, compare_id, FRIENDSHIP_THRESHOLD, RIVAL_THRESHOLD);
+    //need to add the friendship functions
     if(course->course_queue == NULL){
         free(course);
         return NULL;
@@ -158,6 +198,47 @@ int idDifferences(Student first, Student second)
     return abs(first_id - second_id);
 }
 
+int getMaxLineLength(FILE* file_to_read) {
+    int max_line = 0;
+    if (file_to_read != NULL) {
+        int ch, cnt_line = 0;
+        while (true) {
+            ch = fgetc(file_to_read);
+            if (ch == EOF)
+                break;
+            if (ch == '\n') {
+                if (cnt_line > max_line) {
+                    max_line = cnt_line;
+                }
+                cnt_line = 0;
+            } else
+                cnt_line++;
+        }
+        rewind(file_to_read);
+    }
+    return max_line;
+}
+int getMaxStrLength(FILE* file_to_read) {
+    int max_str = 0;
+    if (file_to_read != NULL) {
+        int ch, cnt_str = 0;
+        while (true) {
+            ch = fgetc(file_to_read);
+            if (ch == EOF)
+                break;
+            if (ch == ' ' || ch == '\n') {
+                if (cnt_str > max_str) {
+                    max_str = cnt_str;
+                }
+                cnt_str = 0;
+            } else
+                cnt_str++;
+
+        }
+        rewind(file_to_read);
+    }
+    return max_str;
+}
 int getNumOfLines(FILE* file_to_read)
 {
     int ch, lines_counter = 0;
@@ -192,7 +273,7 @@ EnrollmentSystem mallocEnrollmentSystem(FILE* students, FILE* courses, FILE* hac
         free(enrollmentSystem);
         return NULL;
     }
-    enrollmentSystem->hackers = (Hacker*)malloc(hackers_length*sizeof(Hacker));
+    enrollmentSystem->hackers = (Hacker*)malloc((hackers_length / 4)*sizeof(Hacker));
     if(enrollmentSystem->hackers == NULL) {
         free(enrollmentSystem->students);
         free(enrollmentSystem->courses);
@@ -343,3 +424,52 @@ void hackEnrollment(EnrollmentSystem sys, FILE* out)
         write_enrollment_queue(out, course);
     }
 }
+Student findStudentById(EnrollmentSystem sys, char* id)
+{
+    for(int i = 0; i < sys->index_students; i++){
+        if(strcmp(sys->students[i]->student_id, id))
+            return sys->students[i];
+    }
+    return NULL;
+}
+EnrollmentSystem readEnrollment(EnrollmentSystem sys, FILE* queues)
+{
+    int max_line = getMaxLineLength(queues);
+    char* line = (char*)malloc(max_line * sizeof(char));
+    if(line == NULL)
+        return NULL;
+    char* result = NULL;
+    char* token;
+    char* space = " ";
+    while(true) {
+        result = fgets(line, max_line, queues);// read the line
+        if(result == NULL)
+            break;
+        token = strtok(line, space);//read the course number
+        int course_num = stringToInt(token);
+        Course course = get_course(course_num, sys);
+        while(true){
+            if(IsraeliQueueSize(course->course_queue) > course->size){
+
+            }
+            token = strtok(NULL, space);//read the ID's
+            if(token == NULL)
+                break;
+            char student_id[ID_LENGTH + 1] = strdup(token);
+            Student student = findStudentById(sys, student_id);
+            if(student == NULL)
+                continue;//what happens if the student is not in the enrollment
+            IsraeliQueueEnqueue(course->course_queue, student);
+
+        }
+
+    }
+    return sys;
+    // Am I suppose to return sys or make a copy and then return it??
+    //or what happens if I do return sys, does it makes a copy and than
+    // returns it or that it returns the original object??
+}
+
+
+
+

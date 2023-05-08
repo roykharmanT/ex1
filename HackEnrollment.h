@@ -50,9 +50,20 @@ void putHackersInEnrollment(FILE* hackers, EnrollmentSystem enrollmentSystem);
 //get the length of a file
 int getNumOfLines(FILE* file_to_read);
 //allocate an enrollment system
+<<<<<<< HEAD
+EnrollmentSystem mallocEnrollmentSystem(File* students, File* courses, File* hackers);
+//return how many strings in the line
+int getNumOfStringsInTheLine(char* line);
+=======
 EnrollmentSystem mallocEnrollmentSystem(FILE* students, FILE* courses, FILE* hackers);
+//returns the max line length in the file
+int getMaxLineLength(FILE* file_to_read);
+//returns the max string length int the file
+int getMaxStrLength(FILE* file_to_read);
 
-
+//find student in enrollment by his id
+Student findStudentById(EnrollmentSystem sys, char* id);
+>>>>>>> main
 
 
 
