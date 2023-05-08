@@ -385,7 +385,7 @@ void write_enrollment_queue(FILE* out, Course course){
     fprintf(out, "%d", course->course_number);
     Student head = IsraeliQueueDequeue(course->course_queue);
     while(head){
-        fprintf(out, " %s", head);
+        fprintf(out, " %s", head->student_id);
         head = IsraeliQueueDequeue(course->course_queue);
     }
     fprintf(out, "\n");
@@ -450,7 +450,3 @@ EnrollmentSystem readEnrollment(EnrollmentSystem sys, FILE* queues)
     }
     return sys;
 }
-
-
-
-
