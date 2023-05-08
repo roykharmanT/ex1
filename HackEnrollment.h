@@ -43,7 +43,7 @@ int nameDifferences(Student first, Student second);
 int idDifferences(Student first, Student second);
 
 //return friendship score of 20 if student is in student_hacker friend list, -20 if in rival list, 0 otherwise. (Friendship Function)
-int is_friend_or_rival(Student student_hacker, Student student);
+int isFriendOrRival(Student student_hacker, Student student);
 
 //Israeli queue comparison function
 int compare_id(Student student_hacker, Student student);
@@ -65,13 +65,20 @@ int getMaxStrLength(FILE* file_to_read);
 //find student in enrollment by his id
 Student findStudentById(EnrollmentSystem sys, char* id);
 
+void writeEnrollmentQueue(FILE* out, Course course);
 
+Hacker hackerLeftOut(EnrollmentSystem sys);
 
+bool hackerGotIn(Hacker hacker, EnrollmentSystem sys);
 
+bool studentInCourse(Student student, Course course);
 
+IsraeliQueueError enqueueHacker(Hacker hacker, EnrollmentSystem sys);
 
+Course getCourse(int course_number, EnrollmentSystem sys);
 
+bool isHackerRival(Hacker hacker, Student student);
 
-
+bool isHackerFriend(Hacker hacker, Student student);
 
 #endif //EX1_HACKENROLLMENT_H
