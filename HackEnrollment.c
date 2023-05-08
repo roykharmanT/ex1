@@ -109,8 +109,9 @@ bool is_hacker_rival(Hacker hacker, Student student){
     return false;
 }
 
-int is_friend_or_rival(Hacker hacker, Student student){
+int is_friend_or_rival(Student student_hacker, Student student){
 //Israeli queue friendship measure
+    Hacker hacker = student_hacker -> hacker;
     if(is_hacker_friend(hacker, student)){
         return FRIEND_SCORE;
     }
