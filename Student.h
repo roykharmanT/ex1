@@ -47,6 +47,8 @@ void putCoursesLineIntoHacker(Hacker hacker, char* line);
 
 void destroyStudent(Student student);
 
+void destroyHacker(Hacker hacker);
+
 int stringToInt(char* str);
 
 

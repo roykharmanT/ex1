@@ -17,7 +17,7 @@ EnrollmentSystem createEnrollment(FILE* students, FILE* courses, FILE* hackers)
     putStudentInEnrollment(students, enrollmentSystem);
     putCoursesInEnrollment(courses, enrollmentSystem);
     putHackersInEnrollment(hackers, enrollmentSystem);
-
+    adjustHackerToStudent(enrollmentSystem);
     return enrollmentSystem;
 
 }
@@ -451,6 +451,33 @@ EnrollmentSystem readEnrollment(EnrollmentSystem sys, FILE* queues)
     return sys;
 }
 
+void adjustHackerToStudent(EnrollmentSystem sys)
+{
+    for(int i = 0; i < sys->index_hackers; i++)
+    {
+        Student student = findStudentById(sys, sys->hackers[i]->hacker_id);
+        if(student != NULL)
+            student->is_hacker = sys->hackers[i];
+    }
+}
 
+void destroyEnrollment(EnrollmentSystem sys)
+{
+    for(int i = 0; i < sys->index_students; i++)
+    {
+        destroyStudent(sys->students[i]);
+    }
+    for(int i = 0; i < sys->index_courses; i++)
+    {
+        destroyCourse(sys->courses[i]);
+    }
+    for(int i = 0; i < sys->index_hackers; i++)
+    {
 
+    }
+}
 
+void destroyCourse(Course course)
+{
+
+}
