@@ -74,6 +74,7 @@ Student parseLineToStudent(char* line, int max_str_length)
     new_student->city = strdup(token);
     token = strtok(NULL, space);
     new_student->department = strdup(token);
+    new_student->is_hacker = NULL;
     return new_student;
 }
 
