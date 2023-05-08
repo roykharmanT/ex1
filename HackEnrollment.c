@@ -93,7 +93,6 @@ void putHackersInEnrollment(FILE* hackers, EnrollmentSystem enrollmentSystem)
     rewind(hackers);
 }
 
-<<<<<<< HEAD
 int getNumOfStringsInTheLine(char* line)
 {
     int index = 0, cnt = 0;
@@ -104,8 +103,7 @@ int getNumOfStringsInTheLine(char* line)
     }
     return cnt;
 }
-=======
->>>>>>> main
+
 Course parseLineToCourse(char* line)
 {
     Course course = (Course)malloc(sizeof(*course));
@@ -151,7 +149,7 @@ bool is_hacker_rival(Hacker hacker, Student student){
 
 int is_friend_or_rival(Student student_hacker, Student student){
 //Israeli queue friendship measure
-    Hacker hacker = student_hacker -> hacker;
+    Hacker hacker = student_hacker->is_hacker;
     if(is_hacker_friend(hacker, student)){
         return FRIEND_SCORE;
     }
@@ -162,10 +160,9 @@ int is_friend_or_rival(Student student_hacker, Student student){
     return 0;
 }
 
-int compare_id(Hacker hacker, Student student)
-//Israeli queue comparison function
+int compare_id(Student student_hacker, Student student)
 {
-    if(strcmp(hacker->hacker_id, student->student_id) == 0)
+    if(strcmp(student_hacker->student_id, student->student_id) == 0)
         return 1;
     return 0;
 }
@@ -318,17 +315,6 @@ void putCoursesOrStudentsInEnrollment(FILE* file_to_read, EnrollmentSystem enrol
 
 }
 
-
-Student find_student_hacker(Hacker hacker, EnrollmentSystem sys)
-{
-    for(int i = 0; i < sys->index_students; ++i){
-        Student student = sys->students[i];
-        if(strcmp(student->student_id, hacker->hacker_id) == 0){
-            return student;
-        }
-    }
-}
-
 Course get_course(int course_number, EnrollmentSystem sys){
     for(int k = 0; k < sys->index_courses; ++k){
         Course course = sys->courses[k];
@@ -340,7 +326,7 @@ Course get_course(int course_number, EnrollmentSystem sys){
 }
 
 IsraeliQueueError enqueue_hacker(Hacker hacker, EnrollmentSystem sys){
-    Student student_hacker = find_student_hacker(hacker, sys);
+    Student student_hacker = findStudentById(sys, hacker->hacker_id);
     IsraeliQueueError success = ISRAELI_QUEUE_ERROR;
     for(int j = 0; j < hacker->size_desired_courses; ++j){
         int desired_course = hacker->desired_courses[j];
@@ -424,6 +410,7 @@ void hackEnrollment(EnrollmentSystem sys, FILE* out)
         write_enrollment_queue(out, course);
     }
 }
+
 Student findStudentById(EnrollmentSystem sys, char* id)
 {
     for(int i = 0; i < sys->index_students; i++){
@@ -449,9 +436,6 @@ EnrollmentSystem readEnrollment(EnrollmentSystem sys, FILE* queues)
         int course_num = stringToInt(token);
         Course course = get_course(course_num, sys);
         while(true){
-            if(IsraeliQueueSize(course->course_queue) > course->size){
-
-            }
             token = strtok(NULL, space);//read the ID's
             if(token == NULL)
                 break;
@@ -465,9 +449,6 @@ EnrollmentSystem readEnrollment(EnrollmentSystem sys, FILE* queues)
 
     }
     return sys;
-    // Am I suppose to return sys or make a copy and then return it??
-    //or what happens if I do return sys, does it makes a copy and than
-    // returns it or that it returns the original object??
 }
 
 
