@@ -61,7 +61,6 @@ int getMaxLineLength(FILE* file_to_read);
 //returns the max string length int the file
 int getMaxStrLength(FILE* file_to_read);
 
-
 //find student in enrollment by his id
 Student findStudentById(EnrollmentSystem sys, char* id);
 //adjust hacker to student in the ins_hacker pointer
@@ -70,10 +69,6 @@ void adjustHackerToStudent(EnrollmentSystem sys);
 void destroyEnrollment(EnrollmentSystem sys);
 
 void destroyCourse(Course course);
-
-
-
-
 
 
 #endif //EX1_HACKENROLLMENT_H

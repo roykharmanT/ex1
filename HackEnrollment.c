@@ -385,7 +385,7 @@ void write_enrollment_queue(FILE* out, Course course){
     fprintf(out, "%d", course->course_number);
     Student head = IsraeliQueueDequeue(course->course_queue);
     while(head){
-        fprintf(out, " %s", head);
+        fprintf(out, " %s", head->student_id);
         head = IsraeliQueueDequeue(course->course_queue);
     }
     fprintf(out, "\n");
@@ -449,6 +449,7 @@ EnrollmentSystem readEnrollment(EnrollmentSystem sys, FILE* queues)
 
     }
     return sys;
+<<<<<<< HEAD
 }
 
 void adjustHackerToStudent(EnrollmentSystem sys)
@@ -463,21 +464,20 @@ void adjustHackerToStudent(EnrollmentSystem sys)
 
 void destroyEnrollment(EnrollmentSystem sys)
 {
-    for(int i = 0; i < sys->index_students; i++)
-    {
+    for(int i = 0; i < sys->index_students; i++){
         destroyStudent(sys->students[i]);
     }
-    for(int i = 0; i < sys->index_courses; i++)
-    {
+    for(int i = 0; i < sys->index_courses; i++){
         destroyCourse(sys->courses[i]);
     }
-    for(int i = 0; i < sys->index_hackers; i++)
-    {
-
+    for(int i = 0; i < sys->index_hackers; i++){
+        destroyHacker(sys->hackers[i]);
     }
+    free(sys);
 }
 
 void destroyCourse(Course course)
 {
-
+    IsraeliQueueDestroy(course->course_queue);
+    free(course);
 }
