@@ -11,6 +11,7 @@ int main(int argc, char** argv)
         ignore_case = true;
         ++cur_arg;
     }
+    
     FILE* students = fopen(argv[cur_arg++], "r");
     FILE* courses = fopen(argv[cur_arg++], "r");
     FILE* hackers = fopen(argv[cur_arg++], "r");
@@ -27,6 +28,6 @@ int main(int argc, char** argv)
     fclose(hackers);
     fclose(queues);
     fclose(target);
-    
+
     return 0;
 }
