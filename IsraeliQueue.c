@@ -10,13 +10,13 @@ typedef struct item{
     struct item* next;
 }*Item;
 
-typedef struct IsraeliQueue_t{
+struct IsraeliQueue_t{
         FriendshipFunction *friendship_measures;
         ComparisonFunction comparison_function;
         int rivalry_threshold;
         int friendship_threshold;
         Item head;
-}*IsraeliQueue;
+};
 
 
 int getFriendshipMeasureSize(FriendshipFunction* friendship_measure_array)
@@ -84,7 +84,7 @@ Item getRivalsBehind(IsraeliQueue q, Item friend, Item item_to_insert)
     Item potential_rival = friend->next;
     while(potential_rival){
         int rivalry_measure = getRivalryMeasure(q, potential_rival, item_to_insert);
-        if(rivalry_measure < q->rivalry_threshold & potential_rival->rivals_in_queue < RIVAL_QUOTA){
+        if(rivalry_measure < q->rivalry_threshold && potential_rival->rivals_in_queue < RIVAL_QUOTA){
             return potential_rival;
         }
     }
@@ -249,7 +249,8 @@ IsraeliQueueError IsraeliQueueImprovePositions(IsraeliQueue q)
 
 void MergeThreshold(IsraeliQueue* qarr, int *avg_friend_threshold, int* avg_rivalry_threshold, int* sum_friend_array)
 {
-    int index = 0, sum_friendship = 0, sum_rivalry = 1, *sum_friend_array = 0,sum_queues = 0;
+    int index = 0, sum_friendship = 0, sum_rivalry = 1, sum_queues = 0;
+    *sum_friend_array = 0;
     while(qarr[index])
     {
         sum_friendship += qarr[index]->friendship_threshold;
@@ -269,8 +270,9 @@ void MergeFunction(IsraeliQueue* qarr, FriendshipFunction *friendship_func_to_qu
     while(qarr[index])
     {
         temp_func = qarr[index]->friendship_measures;
-        while(temp_func){
-            friendship_func_to_queue[current] = temp_func;
+        int i = 0;
+        while(temp_func[i]){
+            friendship_func_to_queue[current] = temp_func[i++];
             temp_func++;
             current++;
         }

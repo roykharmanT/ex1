@@ -39,7 +39,7 @@ Student mallocStudent(int max_str_length);
 //allocates new hacker
 Hacker mallocHacker(int num_of_courses, int num_of_friends, int num_of_rivals);
 //allocates an array of friends or rivals id's
-void mallocHackerFriendsOrRivals(Hacker hacker, int num, char type);
+bool mallocHackerFriendsOrRivals(Hacker hacker, int num, char type);
 //put the line in the hackers friends or rivals array
 void putLineInIdArray(Hacker hacker, char* line, char type);
 //put the desired courses in the hackers courses array
@@ -49,7 +49,9 @@ void destroyStudent(Student student);
 
 void destroyHacker(Hacker hacker);
 
-int stringToInt(char* str);
+int stringToInt(const char* str);
+
+int getNumOfStringsInTheLine(char* line);
 
 
 #endif //EX1_STUDENT_H

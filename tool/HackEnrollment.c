@@ -7,6 +7,7 @@
 #define RIVAL_THRESHOLD 0
 #define FRIEND_SCORE 20
 #define RIVAL_SCORE -20
+#define MIN_COURSES_FULFILLED 2
 
 
 EnrollmentSystem createEnrollment(FILE* students, FILE* courses, FILE* hackers)
@@ -93,17 +94,6 @@ void putHackersInEnrollment(FILE* hackers, EnrollmentSystem enrollmentSystem)
     rewind(hackers);
 }
 
-int getNumOfStringsInTheLine(char* line)
-{
-    int index = 0, cnt = 0;
-    while(line[index] != '\n'){
-        if(line[index] == ' ')
-            cnt++;
-        index++;
-    }
-    return cnt;
-}
-
 Course parseLineToCourse(char* line)
 {
     Course course = (Course)malloc(sizeof(*course));
@@ -111,7 +101,7 @@ Course parseLineToCourse(char* line)
         return NULL;
     FriendshipFunction* friendship_measures = (FriendshipFunction*)malloc(sizeof(FriendshipFunction));
     friendship_measures[0] = NULL;
-    course->course_queue = IsraeliQueueCreate(friendship_measures, compare_id, FRIENDSHIP_THRESHOLD, RIVAL_THRESHOLD);
+    course->course_queue = IsraeliQueueCreate(friendship_measures, compareId, FRIENDSHIP_THRESHOLD, RIVAL_THRESHOLD);
     //need to add the friendship functions
     if(course->course_queue == NULL){
         free(course);
@@ -147,9 +137,10 @@ bool isHackerRival(Hacker hacker, Student student){
     return false;
 }
 
-int isFriendOrRival(Student student_hacker, Student student){
+int isFriendOrRival(void* student_hacker, void* void_student){
 //Israeli queue friendship measure
-    Hacker hacker = student_hacker->is_hacker;
+    Student student = (Student) void_student;
+    Hacker hacker = ((Student)student_hacker)->is_hacker;
     if(isHackerFriend(hacker, student)){
         return FRIEND_SCORE;
     }
@@ -159,17 +150,17 @@ int isFriendOrRival(Student student_hacker, Student student){
     }
     return 0;
 }
-
-int compare_id(Student student_hacker, Student student)
+int compareId(void* student_hacker, void* student)
 {
-    if(strcmp(student_hacker->student_id, student->student_id) == 0)
+    if(strcmp(((Student)student_hacker)->student_id, ((Student)student)->student_id) == 0)
         return 1;
     return 0;
 }
 
-int nameDifferences(Student first, Student second)
+int nameDifferences(void* void_first, void* void_second)
 //Israeli queue friendship measure
 {
+    Student first = (Student)void_first, second = (Student)void_second;
     int index = 0, sum = 0;
     while(first->first_name[index] && second->first_name[index]){
         sum += abs((first->first_name[index] - 'a') - (second->first_name[index] - 'a')) ;
@@ -184,10 +175,11 @@ int nameDifferences(Student first, Student second)
 }
 
 
-int idDifferences(Student first, Student second)
+int idDifferences(void* void_first, void* void_second)
 //Israeli queue friendship measure
 {
-    int index = 0, first_id = 0, second_id = 0;
+    Student first = (Student)void_first, second = (Student)void_second;
+    int first_id = 0, second_id = 0;
     for(int i = 0;i < ID_LENGTH; i++){
         first_id = first_id * 10 + first->student_id[i] - '0';
         second_id = second_id * 10 + second->student_id[i] - '0';
@@ -282,38 +274,7 @@ EnrollmentSystem mallocEnrollmentSystem(FILE* students, FILE* courses, FILE* hac
     return enrollmentSystem;
 
 }
-//another option that prevent code duplication
-void putCoursesOrStudentsInEnrollment(FILE* file_to_read, EnrollmentSystem enrollmentSystem, char type)
-{
-    if(file_to_read != NULL) {
-        char *result = NULL;
-        char *line = (char *) malloc(MAX_LENGTH * sizeof(char));
-        if(line == NULL)
-            return;
-        while (true) {
-            result = fgets(line, MAX_LENGTH, file_to_read);
-            if (result == NULL)
-                break;
-            if(type == 'c'){
-                Course course_into_enrollment = parseLineToCourse(line);
-                if(course_into_enrollment == NULL)
-                    break;
-                enrollmentSystem->courses[enrollmentSystem->index_courses] = course_into_enrollment;
-                enrollmentSystem->index_courses++;
-                }
-            else
-            {
-                Student student_into_enrollment = parseLineToStudent(result);
-                if(student_into_enrollment == NULL)
-                    break;
-                enrollmentSystem->students[enrollmentSystem->index_students] = student_into_enrollment;
-                enrollmentSystem->index_students++;
-            }
-        }
-        free(line);
-    }
 
-}
 
 Course getCourse(int course_number, EnrollmentSystem sys){
     for(int k = 0; k < sys->index_courses; ++k){
@@ -336,7 +297,7 @@ IsraeliQueueError enqueueHacker(Hacker hacker, EnrollmentSystem sys){
         }
         if(course->course_number == desired_course)
         {
-            IsraeliQueueError success = IsraeliQueueEnqueue(course->course_queue, student_hacker);
+            success = IsraeliQueueEnqueue(course->course_queue, student_hacker);
         }
     }
     return success;
@@ -359,7 +320,7 @@ bool studentInCourse(Student student, Course course){
 }
 
 bool hackerGotIn(Hacker hacker, EnrollmentSystem sys){
-    Student student_hacker = find_student_hacker(hacker, sys);
+    Student student_hacker = findStudentById(sys, hacker->hacker_id);
     int required_courses = hacker->size_desired_courses >= 2 ? 2 : 1;
     for(int j = 0; j < hacker->size_desired_courses; ++j){
         Course course = getCourse(hacker->desired_courses[j], sys);
@@ -400,15 +361,16 @@ void hackEnrollment(EnrollmentSystem sys, FILE* out)
         Hacker hacker = sys->hackers[i];
         IsraeliQueueError enqueue_success = enqueueHacker(hacker, sys);
         if(enqueue_success != ISRAELIQUEUE_SUCCESS){
-            return NULL;
+            return;
         }
     }
 
     Hacker left_out = hackerLeftOut(sys);
     if(left_out){
-        fprintf("Cannot satisfy constraints for %s", left_out->hacker_id);
+        fprintf(out, "Cannot satisfy constraints for %s", left_out->hacker_id);
         return;
     }
+
     for(int i = 0; i < sys->index_courses; ++i){
         Course course = sys->courses[i];
         writeEnrollmentQueue(out, course);
@@ -443,8 +405,7 @@ EnrollmentSystem readEnrollment(EnrollmentSystem sys, FILE* queues)
             token = strtok(NULL, space);//read the ID's
             if(token == NULL)
                 break;
-            char student_id[ID_LENGTH + 1] = strdup(token);
-            Student student = findStudentById(sys, student_id);
+            Student student = findStudentById(sys, token);
             if(student == NULL)
                 continue;//what happens if the student is not in the enrollment
             IsraeliQueueEnqueue(course->course_queue, student);
@@ -453,7 +414,6 @@ EnrollmentSystem readEnrollment(EnrollmentSystem sys, FILE* queues)
 
     }
     return sys;
-<<<<<<< HEAD
 }
 
 void adjustHackerToStudent(EnrollmentSystem sys)

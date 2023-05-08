@@ -1,6 +1,6 @@
 #ifndef EX1_HACKENROLLMENT_H
 #define EX1_HACKENROLLMENT_H
-#include "IsraeliQueue.h"
+#include "../IsraeliQueue.h"
 #include "Student.h"
 #include <stdio.h>
 
@@ -19,7 +19,7 @@ typedef struct EnrollmentSystem{
     Student* students;
     int index_students;
     Hacker* hackers;
-    int index_hackers
+    int index_hackers;
 }*EnrollmentSystem;
 
 //creates an Enrollment System that will contain the data from the files
@@ -37,20 +37,24 @@ void hackEnrollment(EnrollmentSystem sys, FILE* out);
 Course parseLineToCourse(char* line);
 
 //returns the sum differences between ascii characters of two names (Friendship Function)
-int nameDifferences(Student first, Student second);
+int nameDifferences(void*, void*);
 
 //returns the difference between two ID (Friendship Function)
-int idDifferences(Student first, Student second);
+int idDifferences(void*, void*);
 
 //return friendship score of 20 if student is in student_hacker friend list, -20 if in rival list, 0 otherwise. (Friendship Function)
-int isFriendOrRival(Student student_hacker, Student student);
+int isFriendOrRival(void*, void*);
 
 //Israeli queue comparison function
-int compare_id(Student student_hacker, Student student);
+int compareId(void*, void*);
+
+//Loads all students from students file to the enrollment system
 void putStudentInEnrollment(FILE* students, EnrollmentSystem enrollmentSystem);
 
+//Loads all courses from students file to the enrollment system
 void putCoursesInEnrollment(FILE* courses, EnrollmentSystem enrollmentSystem);
 
+//Loads all hackers from students file to the enrollment system
 void putHackersInEnrollment(FILE* hackers, EnrollmentSystem enrollmentSystem);
 //get the length of a file
 int getNumOfLines(FILE* file_to_read);

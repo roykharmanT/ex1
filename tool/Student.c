@@ -109,7 +109,7 @@ void destroyStudent(Student student)
 // I think we don't really need it
 Hacker mallocHacker(int num_of_courses, int num_of_friends, int num_of_rivals)
 {
-    Hacker new_hacker = (Hacker)malloc(sizeof(*Hacker));
+    Hacker new_hacker = (Hacker)malloc(sizeof(*new_hacker));
     if(new_hacker == NULL)
         return NULL;
     new_hacker->hacker_id = (char*)malloc((ID_LENGTH + 1)*sizeof(char));
@@ -125,7 +125,7 @@ Hacker mallocHacker(int num_of_courses, int num_of_friends, int num_of_rivals)
     }
     new_hacker->friends_id = (char**)malloc(num_of_friends* sizeof(char*));
     if(new_hacker->friends_id != NULL){
-        for(int i = 0; i < num_of_friends; i++;){
+        for(int i = 0; i < num_of_friends; i++){
             new_hacker->friends_id[i] = (char *)malloc((ID_LENGTH + 1)* sizeof(char));
             if(new_hacker->friends_id[i] == NULL){
                 for(int j = 0; j < i; j++){
@@ -140,7 +140,7 @@ Hacker mallocHacker(int num_of_courses, int num_of_friends, int num_of_rivals)
 
     new_hacker->rivals_id = (char**)malloc(num_of_rivals* sizeof(char*));
     if(new_hacker->rivals_id != NULL){
-        for(int i = 0; i < num_of_rivals; i++;){
+        for(int i = 0; i < num_of_rivals; i++){
             new_hacker->rivals_id[i] = (char *)malloc((ID_LENGTH + 1)* sizeof(char));
             if(new_hacker->rivals_id[i] == NULL){
                 for(int j = 0; j < i; j++){
@@ -186,6 +186,17 @@ void destroyHacker(Hacker hacker)
     }
 }
 
+int getNumOfStringsInTheLine(char* line)
+{
+    int index = 0, cnt = 0;
+    while(line[index] != '\n'){
+        if(line[index] == ' ')
+            cnt++;
+        index++;
+    }
+    return cnt;
+}
+
 void parseLineToHacker(Hacker hacker, char* line, int line_number)
 {
     if(line[0] != '\n'){
@@ -194,11 +205,11 @@ void parseLineToHacker(Hacker hacker, char* line, int line_number)
         bool success;
         switch (line_number)
         {
-            case 0:
+            case 0: ;
                 token = strtok(line, space);
                 hacker->hacker_id = strdup(token);
                 break;
-            case 1:
+            case 1: ;
                 int num_of_courses = getNumOfStringsInTheLine(line);
                 hacker->desired_courses = (int*)malloc(num_of_courses * sizeof(int));
                 if(hacker->desired_courses == NULL) {
@@ -209,7 +220,7 @@ void parseLineToHacker(Hacker hacker, char* line, int line_number)
                     putCoursesLineIntoHacker(hacker, line);
                 }
                 break;
-            case 2:
+            case 2: ;
                 int num_of_friends = getNumOfStringsInTheLine(line);
                 success = mallocHackerFriendsOrRivals(hacker, num_of_friends, 'f');
                 if(!success) {
@@ -218,7 +229,7 @@ void parseLineToHacker(Hacker hacker, char* line, int line_number)
                 }
                 putLineInIdArray(hacker, line, 'f');
                 break;
-            case 3:
+            case 3: ;
                 int num_of_rivals = getNumOfStringsInTheLine(line);
                 success = mallocHackerFriendsOrRivals(hacker, num_of_rivals, 'r');
                 if(!success) {
@@ -231,8 +242,6 @@ void parseLineToHacker(Hacker hacker, char* line, int line_number)
                 return;
         }
 
-
-        }
     }
 }
 
@@ -273,13 +282,14 @@ void putLineInIdArray(Hacker hacker, char* line, char type)
         index++;
     }
 }
+
 bool mallocHackerFriendsOrRivals(Hacker hacker, int num, char type)
 {
     if(type == 'f')
     {
         hacker->friends_id = (char **) malloc(num * sizeof(char *));
         if (hacker->friends_id != NULL) {
-            for (int i = 0; i < num; i++;){
+            for (int i = 0; i < num; i++){
                 hacker->friends_id[i] = (char *) malloc((ID_LENGTH + 1) * sizeof(char));
                 //hacker->friends_id[i] = char[ID_LENGTH +1];-- doesn't work
                 if (hacker->friends_id[i] == NULL) {
@@ -298,9 +308,9 @@ bool mallocHackerFriendsOrRivals(Hacker hacker, int num, char type)
     {
         hacker->rivals_id = (char**)malloc(num * sizeof(char*));
         if(hacker->rivals_id != NULL){
-            for(int i = 0; i < num; i++;){
-                new_hacker->rivals_id[i] = (char *)malloc((ID_LENGTH + 1)* sizeof(char));
-                if(new_hacker->rivals_id[i] == NULL){
+            for(int i = 0; i < num; i++){
+                hacker->rivals_id[i] = (char *)malloc((ID_LENGTH + 1)* sizeof(char));
+                if(hacker->rivals_id[i] == NULL){
                     destroyHacker(hacker);
                     return false;
                 }
