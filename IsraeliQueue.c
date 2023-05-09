@@ -242,7 +242,6 @@ IsraeliQueueError IsraeliQueueImprovePositions(IsraeliQueue q)
     if(q == NULL){
         return ISRAELIQUEUE_BAD_PARAM;
     }
-
     return improvePosition(q, q->head);
 }
 
