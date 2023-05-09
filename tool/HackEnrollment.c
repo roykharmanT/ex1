@@ -8,6 +8,7 @@
 #define FRIEND_SCORE 20
 #define RIVAL_SCORE -20
 #define MIN_COURSES_FULFILLED 2
+#define HACKER_FIELDS 4
 
 
 EnrollmentSystem createEnrollment(FILE* students, FILE* courses, FILE* hackers)
@@ -69,8 +70,19 @@ void putCoursesInEnrollment(FILE* courses, EnrollmentSystem enrollmentSystem)
 
 }
 
+static int getNumHackers(FILE* hackers){
+    int count = 0;
+    for (char c = getc(hackers); c != EOF; c = getc(hackers)){
+        if (c == '\n'){
+             ++count;
+        }
+           
+    }
+    rewind(hackers);
+    return count / HACKER_FIELDS;
+}
 
-void putHackersInEnrollment(FILE* hackers, EnrollmentSystem enrollmentSystem)
+void putHackersInEnrollment(FILE* hackers, EnrollmentSystem sys)
 {
     if(hackers == NULL)
         return;
@@ -79,18 +91,22 @@ void putHackersInEnrollment(FILE* hackers, EnrollmentSystem enrollmentSystem)
     if(line == NULL) {
         return;
     }
-
-    int index = 0;
     char* result = NULL;
-    while(true){
-        result = fgets(line, max_line_length, hackers);
-        if(result == NULL)
-            break;
-        parseLineToHacker(enrollmentSystem->hackers[enrollmentSystem->index_hackers], result, (index % 4));
-        index++;
-        if(index % 4 == 0)
-            enrollmentSystem->index_hackers++;
+    int num_hackers = getNumHackers(hackers);
+    sys->hackers = (Hacker*)malloc(sizeof(Hacker)*num_hackers);
+    for(int i = 0; i < num_hackers; ++i)
+    {
+        Hacker hacker = mallocHacker(sys->index_courses, sys->index_students);
+        for(int field = 0; field < HACKER_FIELDS; ++field)
+        {
+            result = fgets(line, max_line_length, hackers);
+            if(result == NULL)
+                break;
+            parseLineToHacker(hacker, result, field);
+        }
+        sys->hackers[i] = hacker;
     }
+    sys->index_hackers = num_hackers;
     rewind(hackers);
 }
 
@@ -200,12 +216,13 @@ int getMaxLineLength(FILE* file_to_read) {
                     max_line = cnt_line;
                 }
                 cnt_line = 0;
-            } else
+            } 
+            else
                 cnt_line++;
         }
         rewind(file_to_read);
     }
-    return max_line;
+    return max_line + 2;
 }
 int getMaxStrLength(FILE* file_to_read) {
     int max_str = 0;

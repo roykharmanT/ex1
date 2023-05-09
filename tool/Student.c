@@ -106,57 +106,47 @@ void destroyStudent(Student student)
         free(student);
     }
 }
-// I think we don't really need it
-Hacker mallocHacker(int num_of_courses, int num_of_friends, int num_of_rivals)
+// I think we don't really need it (actually we do need it... A wise man once told me 'every object under the heaven must have a constructor and a destructor')
+Hacker mallocHacker(int num_of_courses, int num_of_students)
 {
     Hacker new_hacker = (Hacker)malloc(sizeof(*new_hacker));
     if(new_hacker == NULL)
         return NULL;
+        
     new_hacker->hacker_id = (char*)malloc((ID_LENGTH + 1)*sizeof(char));
     if(new_hacker->hacker_id == NULL){
-        free(new_hacker);
+        destroyHacker(new_hacker);
         return NULL;
     }
+
     new_hacker->desired_courses = (int*)malloc(num_of_courses*sizeof (int));
     if(new_hacker->desired_courses == NULL){
-        free(new_hacker->hacker_id);
-        free(new_hacker);
+        destroyHacker(new_hacker);
         return NULL;
     }
-    new_hacker->friends_id = (char**)malloc(num_of_friends* sizeof(char*));
+    
+    new_hacker->friends_id = (char**)malloc(num_of_students*sizeof(char*));
     if(new_hacker->friends_id != NULL){
-        for(int i = 0; i < num_of_friends; i++){
+        for(int i = 0; i < num_of_students; i++){
             new_hacker->friends_id[i] = (char *)malloc((ID_LENGTH + 1)* sizeof(char));
             if(new_hacker->friends_id[i] == NULL){
-                for(int j = 0; j < i; j++){
-                    free(new_hacker->friends_id[j]);
-                }
-                free(new_hacker->hacker_id);
-                free(new_hacker);
+                destroyHacker(new_hacker);
                 return NULL;
             }
         }
     }
 
-    new_hacker->rivals_id = (char**)malloc(num_of_rivals* sizeof(char*));
+    new_hacker->rivals_id = (char**)malloc(num_of_students*sizeof(char*));
     if(new_hacker->rivals_id != NULL){
-        for(int i = 0; i < num_of_rivals; i++){
+        for(int i = 0; i < num_of_students; i++){
             new_hacker->rivals_id[i] = (char *)malloc((ID_LENGTH + 1)* sizeof(char));
             if(new_hacker->rivals_id[i] == NULL){
-                for(int j = 0; j < i; j++){
-                    free(new_hacker->rivals_id[j]);
-                }
-                for(int k = 0; k < num_of_friends; k++){
-                    free(new_hacker->friends_id[k]);
-                }
-                free(new_hacker->hacker_id);
-                free(new_hacker);
+                destroyHacker(new_hacker);
                 return NULL;
             }
         }
     }
     return new_hacker;
-    //its pretty disgusting but it is what it is
 }
 
 void destroyHacker(Hacker hacker)
@@ -202,40 +192,19 @@ void parseLineToHacker(Hacker hacker, char* line, int line_number)
     if(line[0] != '\n'){
         char* space = " ";
         char* token;
-        bool success;
         switch (line_number)
         {
             case 0: ;
                 token = strtok(line, space);
-                hacker->hacker_id = strdup(token);
+                token[strcspn(token, "\n")] = 0;
+                hacker->hacker_id = token;
                 break;
             case 1: ;
-                int num_of_courses = getNumOfStringsInTheLine(line);
-                hacker->desired_courses = (int*)malloc(num_of_courses * sizeof(int));
-                if(hacker->desired_courses == NULL) {
-                    destroyHacker(hacker);
-                    return;
-                }
-                else{
-                    putCoursesLineIntoHacker(hacker, line);
-                }
+                putCoursesLineIntoHacker(hacker, line);
                 break;
             case 2: ;
-                int num_of_friends = getNumOfStringsInTheLine(line);
-                success = mallocHackerFriendsOrRivals(hacker, num_of_friends, 'f');
-                if(!success) {
-                    destroyHacker(hacker);
-                    return;
-                }
                 putLineInIdArray(hacker, line, 'f');
-                break;
             case 3: ;
-                int num_of_rivals = getNumOfStringsInTheLine(line);
-                success = mallocHackerFriendsOrRivals(hacker, num_of_rivals, 'r');
-                if(!success) {
-                    destroyHacker(hacker);
-                    return;
-                }
                 putLineInIdArray(hacker, line, 'r');
                 break;
             default:
@@ -288,7 +257,7 @@ bool mallocHackerFriendsOrRivals(Hacker hacker, int num, char type)
     if(type == 'f')
     {
         hacker->friends_id = (char **) malloc(num * sizeof(char *));
-        if (hacker->friends_id != NULL) {
+        if (hacker->friends_id) {
             for (int i = 0; i < num; i++){
                 hacker->friends_id[i] = (char *) malloc((ID_LENGTH + 1) * sizeof(char));
                 //hacker->friends_id[i] = char[ID_LENGTH +1];-- doesn't work

@@ -37,7 +37,7 @@ void parseLineToHacker(Hacker hacker, char* line, int line_number);
 //allocates new student
 Student mallocStudent(int max_str_length);
 //allocates new hacker
-Hacker mallocHacker(int num_of_courses, int num_of_friends, int num_of_rivals);
+Hacker mallocHacker(int num_of_courses, int num_of_students);
 //allocates an array of friends or rivals id's
 bool mallocHackerFriendsOrRivals(Hacker hacker, int num, char type);
 //put the line in the hackers friends or rivals array

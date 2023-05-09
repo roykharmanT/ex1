@@ -272,8 +272,7 @@ void MergeFunction(IsraeliQueue* qarr, FriendshipFunction *friendship_func_to_qu
         temp_func = qarr[index]->friendship_measures;
         int i = 0;
         while(temp_func[i]){
-            friendship_func_to_queue[current] = temp_func[i++];
-            temp_func++;
+            friendship_func_to_queue[current] = temp_func[i];
             current++;
         }
         index++;

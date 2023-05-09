@@ -4,7 +4,7 @@
 
 int main(int argc, char** argv)
 {
-    int cur_arg = 0;
+    int cur_arg = 1;
     FILE* students = fopen(argv[cur_arg++], "r");
     FILE* courses = fopen(argv[cur_arg++], "r");
     FILE* hackers = fopen(argv[cur_arg++], "r");
