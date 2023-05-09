@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <assert.h>
 
 typedef struct item{
     int friends_in_queue;
@@ -93,6 +94,11 @@ Item getRivalsBehind(IsraeliQueue q, Item friend, Item item_to_insert)
 
 IsraeliQueueError enqueueItem(IsraeliQueue q, Item item_to_insert)
 {
+    if(!q->head){
+        q->head = item_to_insert;
+        return ISRAELIQUEUE_SUCCESS;
+    }
+
     Item potential_friend = q->head;
     int number_of_friendship_measures = getFriendshipMeasureSize(q->friendship_measures);
     while(potential_friend)
@@ -151,27 +157,17 @@ IsraeliQueueError IsraeliQueueAddFriendshipMeasure(IsraeliQueue q, FriendshipFun
         return ISRAELIQUEUE_BAD_PARAM;
     }
 
-    FriendshipFunction *to_free = q->friendship_measures;
     int array_size = getFriendshipMeasureSize(q->friendship_measures);
-    FriendshipFunction *new_friendship_measures = (FriendshipFunction*)malloc((array_size + 2) * sizeof(FriendshipFunction));
-    if(new_friendship_measures == NULL){
+    q->friendship_measures = (FriendshipFunction*)realloc(q->friendship_measures, (array_size + 2) * sizeof(FriendshipFunction));
+    if(q->friendship_measures == NULL){
         //If failed to allocate memory return error
         return ISRAELIQUEUE_ALLOC_FAILED;
     }
-    int index = 0;
-    for(;index < array_size; ++index){
-        // Copy freindship measured to new array
-        new_friendship_measures[index] = q->friendship_measures[index];
-    }
-    //Assign the new friendship measures array to the israeli queue
-    new_friendship_measures[array_size] = friend_func;
-    new_friendship_measures[array_size + 1] = NULL;
-    q->friendship_measures = new_friendship_measures;
 
-    if(to_free){
-        // Free old array
-        free(to_free);
-    }
+    //Assign the new friendship measures array to the israeli queue
+    q->friendship_measures[array_size] = friend_func;
+    q->friendship_measures[array_size + 1] = NULL;
+
     return ISRAELIQUEUE_SUCCESS;
 }
 
@@ -210,8 +206,11 @@ int IsraeliQueueSize(IsraeliQueue q)
 
 void* IsraeliQueueDequeue(IsraeliQueue q)
 {
-    void* to_return = q->head->ptr;
-    q->head = q->head->next;
+    void* to_return = NULL;
+    if(q->head){
+         to_return = q->head->ptr;
+        q->head = q->head->next;
+    }
     return to_return;
 }
 

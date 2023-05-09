@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 #define MAX_LENGTH 100
 #define FRIENDSHIP_THRESHOLD 20
 #define RIVAL_THRESHOLD 0
@@ -9,11 +10,13 @@
 #define RIVAL_SCORE -20
 #define MIN_COURSES_FULFILLED 2
 #define HACKER_FIELDS 4
+#define NUM_FRIENDSHIP_MEASURES 3
 
 
 EnrollmentSystem createEnrollment(FILE* students, FILE* courses, FILE* hackers)
 {
     EnrollmentSystem enrollmentSystem = mallocEnrollmentSystem(students, courses, hackers);
+    assert(enrollmentSystem);
     if(enrollmentSystem == NULL)
         return NULL;
     putStudentInEnrollment(students, enrollmentSystem);
@@ -31,8 +34,10 @@ void putStudentInEnrollment(FILE* students, EnrollmentSystem enrollmentSystem)
         int max_line_length = getMaxLineLength(students);
         int max_str_length = getMaxStrLength(students);
         char *student_line = (char *) malloc(max_line_length * sizeof(char));
-        if(student_line == NULL)
+        if(student_line == NULL){
+            assert(student_line);
             return;
+            }
         while (true) {
             result = fgets(student_line, max_line_length, students);
             if (result == NULL)
@@ -54,6 +59,7 @@ void putCoursesInEnrollment(FILE* courses, EnrollmentSystem enrollmentSystem)
         char *result = NULL;
         int max_line_length = getMaxLineLength(courses);
         char *course_line = (char *) malloc(max_line_length * sizeof(char));
+        assert(course_line);
         if(course_line == NULL)
             return;
         while (true) {
@@ -84,6 +90,7 @@ static int getNumHackers(FILE* hackers){
 
 void putHackersInEnrollment(FILE* hackers, EnrollmentSystem sys)
 {
+    assert(hackers);
     if(hackers == NULL)
         return;
     int max_line_length = getMaxLineLength(hackers);
@@ -118,16 +125,15 @@ Course parseLineToCourse(char* line)
     FriendshipFunction* friendship_measures = (FriendshipFunction*)malloc(sizeof(FriendshipFunction));
     friendship_measures[0] = NULL;
     course->course_queue = IsraeliQueueCreate(friendship_measures, compareId, FRIENDSHIP_THRESHOLD, RIVAL_THRESHOLD);
-    //need to add the friendship functions
     if(course->course_queue == NULL){
         free(course);
         return NULL;
     }
     char* space = " ";
     char* token = strtok(line, space);
-    course->course_number = stringToInt(token);
+    course->course_number = atoi(token);
     token = strtok(NULL, space);
-    course->size = stringToInt(token);
+    course->size = atoi(token);
     return course;
 }
 
@@ -309,12 +315,14 @@ IsraeliQueueError enqueueHacker(Hacker hacker, EnrollmentSystem sys){
     for(int j = 0; j < hacker->size_desired_courses; ++j){
         int desired_course = hacker->desired_courses[j];
         Course course = getCourse(desired_course, sys);
+        assert(course);
         if(!course){
-            return ISRAELI_QUEUE_ERROR;
+            continue;
         }
         if(course->course_number == desired_course)
         {
             success = IsraeliQueueEnqueue(course->course_queue, student_hacker);
+            assert(success == ISRAELIQUEUE_SUCCESS);
         }
     }
     return success;
@@ -371,12 +379,33 @@ void writeEnrollmentQueue(FILE* out, Course course){
     fprintf(out, "\n");
 }
 
+static IsraeliQueueError addHackersFriendshipMeasures(EnrollmentSystem sys)
+{
+    IsraeliQueueError success = ISRAELI_QUEUE_ERROR;
+    FriendshipFunction func_array[NUM_FRIENDSHIP_MEASURES] = {idDifferences, nameDifferences, isFriendOrRival};
+    for(int i = 0; i < sys->index_courses; ++i){
+        Course course = sys->courses[i];
+        for(int j = 0; j < NUM_FRIENDSHIP_MEASURES; ++j){
+            success = IsraeliQueueAddFriendshipMeasure(course->course_queue, func_array[j]);
+            if(success != ISRAELIQUEUE_SUCCESS)
+                return success;
+        }
+    }
+    return success;
+}
+
 void hackEnrollment(EnrollmentSystem sys, FILE* out)
 {
+    IsraeliQueueError added_measures = addHackersFriendshipMeasures(sys);
+    assert(added_measures == ISRAELIQUEUE_SUCCESS);
+    if(added_measures != ISRAELIQUEUE_SUCCESS){
+        return;
+    }
     for(int i = 0; i < sys->index_hackers; ++i)
     {
         Hacker hacker = sys->hackers[i];
         IsraeliQueueError enqueue_success = enqueueHacker(hacker, sys);
+        assert(enqueue_success == ISRAELIQUEUE_SUCCESS);
         if(enqueue_success != ISRAELIQUEUE_SUCCESS){
             return;
         }
@@ -406,6 +435,7 @@ EnrollmentSystem readEnrollment(EnrollmentSystem sys, FILE* queues)
 {
     int max_line = getMaxLineLength(queues);
     char* line = (char*)malloc(max_line * sizeof(char));
+    assert(line);
     if(line == NULL)
         return NULL;
     char* result = NULL;
@@ -416,7 +446,7 @@ EnrollmentSystem readEnrollment(EnrollmentSystem sys, FILE* queues)
         if(result == NULL)
             break;
         token = strtok(line, space);//read the course number
-        int course_num = stringToInt(token);
+        int course_num = atoi(token);
         Course course = getCourse(course_num, sys);
         while(true){
             token = strtok(NULL, space);//read the ID's

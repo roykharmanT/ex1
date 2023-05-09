@@ -63,9 +63,9 @@ Student parseLineToStudent(char* line, int max_str_length)
     char* token = strtok(line, space);
     new_student->student_id = strdup(token);
     token = strtok(NULL, space);
-    new_student->total_credits = stringToInt(token);
+    new_student->total_credits = atoi(token);
     token = strtok(NULL, space);
-    new_student->gpa = stringToInt(token);
+    new_student->gpa = atoi(token);
     token = strtok(NULL, space);
     new_student->first_name = strdup(token);
     token = strtok(NULL, space);
@@ -197,13 +197,14 @@ void parseLineToHacker(Hacker hacker, char* line, int line_number)
             case 0: ;
                 token = strtok(line, space);
                 token[strcspn(token, "\n")] = 0;
-                hacker->hacker_id = token;
+                hacker->hacker_id = strdup(token);
                 break;
             case 1: ;
                 putCoursesLineIntoHacker(hacker, line);
                 break;
             case 2: ;
                 putLineInIdArray(hacker, line, 'f');
+                break;
             case 3: ;
                 putLineInIdArray(hacker, line, 'r');
                 break;
@@ -216,39 +217,30 @@ void parseLineToHacker(Hacker hacker, char* line, int line_number)
 
 void putCoursesLineIntoHacker(Hacker hacker, char* line)
 {
-    char temp[7];
-    int index = 0, current_letter = 0, current_course = 0;
-    while(line[index] != '\n'){
-        if(line[index] == ' '){
-            hacker->desired_courses[current_course] = stringToInt(temp);
-            current_course++;
-            current_letter = 0;
-        }
-        else {
-            temp[current_letter] = line[index];
-            current_letter++;
-        }
-        index++;
+    int index = 0;
+    char* space = " ";
+    char* token = strtok(line, space);
+    while(token){
+        token[strcspn(token, "\n")] = 0;
+        hacker->desired_courses[index++] = atoi(token);
+        token = strtok(NULL, space);
     }
+    hacker->size_desired_courses = index;
 }
 void putLineInIdArray(Hacker hacker, char* line, char type)
 {
-    int index = 0, current_item = 0, current_ch = 0 ;
-    while(line[index] != '\n'){
-        if (line[index] == ' ') {
-            current_item++;
-            current_ch = 0;
+    int index = 0;
+    char* space = " ";
+    char* token = strtok(line, space);
+    while(token){
+        token[strcspn(token, "\n")] = 0;
+        if (type == 'f') {
+            hacker->friends_id[index++] = strdup(token);
         }
         else {
-            if (type == 'f') {
-                hacker->friends_id[current_item][current_ch] = line[index];
-            }
-            else {
-                hacker->rivals_id[current_item][current_ch] = line[index];
-            }
-            current_ch++;
+            hacker->rivals_id[index++] = strdup(token);
         }
-        index++;
+        token = strtok(NULL, space);
     }
 }
 
