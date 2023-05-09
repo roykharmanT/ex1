@@ -311,7 +311,7 @@ Course getCourse(int course_number, EnrollmentSystem sys){
 
 IsraeliQueueError enqueueHacker(Hacker hacker, EnrollmentSystem sys){
     Student student_hacker = findStudentById(sys, hacker->hacker_id);
-    IsraeliQueueError success = ISRAELI_QUEUE_ERROR;
+    IsraeliQueueError success = ISRAELIQUEUE_SUCCESS;
     for(int j = 0; j < hacker->size_desired_courses; ++j){
         int desired_course = hacker->desired_courses[j];
         Course course = getCourse(desired_course, sys);
@@ -322,6 +322,7 @@ IsraeliQueueError enqueueHacker(Hacker hacker, EnrollmentSystem sys){
         if(course->course_number == desired_course)
         {
             success = IsraeliQueueEnqueue(course->course_queue, student_hacker);
+            assert(IsraeliQueueContains(course->course_queue, student_hacker));
             assert(success == ISRAELIQUEUE_SUCCESS);
         }
     }
@@ -332,8 +333,8 @@ bool studentInCourse(Student student, Course course){
     int counter = 0;
     IsraeliQueue checking_queue = IsraeliQueueClone(course->course_queue);
     while(counter < course->size){
-        Student head = IsraeliQueueDequeue(checking_queue);
-        if(head == student){
+        void* head = IsraeliQueueDequeue(checking_queue);
+        if(head && compareId(student, head)){
             IsraeliQueueDestroy(checking_queue);
             return true;
         }
@@ -341,7 +342,6 @@ bool studentInCourse(Student student, Course course){
     }
     IsraeliQueueDestroy(checking_queue);
     return false;
-
 }
 
 bool hackerGotIn(Hacker hacker, EnrollmentSystem sys){
@@ -349,6 +349,9 @@ bool hackerGotIn(Hacker hacker, EnrollmentSystem sys){
     int required_courses = hacker->size_desired_courses >= 2 ? 2 : 1;
     for(int j = 0; j < hacker->size_desired_courses; ++j){
         Course course = getCourse(hacker->desired_courses[j], sys);
+        if(!course){
+            continue;
+        }
         if(studentInCourse(student_hacker, course)){
             --required_courses;
             if(required_courses == 0){
@@ -359,10 +362,13 @@ bool hackerGotIn(Hacker hacker, EnrollmentSystem sys){
     return false;
 }
 
-Hacker hackerLeftOut(EnrollmentSystem sys){
-    for(int i = 0; i < sys->index_hackers; ++i){
+Hacker hackerLeftOut(EnrollmentSystem sys)
+{
+    for(int i = 0; i < sys->index_hackers; ++i)
+    {
         Hacker hacker = sys->hackers[i];
-        if(!hackerGotIn(hacker, sys)){
+        if(!hackerGotIn(hacker, sys))
+        {
             return hacker;
         }
     }
@@ -371,7 +377,7 @@ Hacker hackerLeftOut(EnrollmentSystem sys){
 
 void writeEnrollmentQueue(FILE* out, Course course){
     fprintf(out, "%d", course->course_number);
-    Student head = IsraeliQueueDequeue(course->course_queue);
+    Student head = (Student)IsraeliQueueDequeue(course->course_queue);
     while(head){
         fprintf(out, " %s", head->student_id);
         head = IsraeliQueueDequeue(course->course_queue);
@@ -426,7 +432,7 @@ void hackEnrollment(EnrollmentSystem sys, FILE* out)
 Student findStudentById(EnrollmentSystem sys, char* id)
 {
     for(int i = 0; i < sys->index_students; i++){
-        if(strcmp(sys->students[i]->student_id, id))
+        if(strcmp(sys->students[i]->student_id, id) == 0)
             return sys->students[i];
     }
     return NULL;
@@ -435,7 +441,6 @@ EnrollmentSystem readEnrollment(EnrollmentSystem sys, FILE* queues)
 {
     int max_line = getMaxLineLength(queues);
     char* line = (char*)malloc(max_line * sizeof(char));
-    assert(line);
     if(line == NULL)
         return NULL;
     char* result = NULL;
@@ -443,11 +448,15 @@ EnrollmentSystem readEnrollment(EnrollmentSystem sys, FILE* queues)
     char* space = " ";
     while(true) {
         result = fgets(line, max_line, queues);// read the line
+        line[strcspn(line, "\n")] = 0;
         if(result == NULL)
             break;
         token = strtok(line, space);//read the course number
         int course_num = atoi(token);
         Course course = getCourse(course_num, sys);
+        if(!course){
+            return NULL;
+        }
         while(true){
             token = strtok(NULL, space);//read the ID's
             if(token == NULL)
@@ -456,7 +465,6 @@ EnrollmentSystem readEnrollment(EnrollmentSystem sys, FILE* queues)
             if(student == NULL)
                 continue;//what happens if the student is not in the enrollment
             IsraeliQueueEnqueue(course->course_queue, student);
-
         }
 
     }
