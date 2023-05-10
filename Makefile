@@ -1,29 +1,32 @@
+CC = gcc
+OBJS = main.o HackEnrollment.o IsraeliQueue.o Student.o
+PROG = program
+EXEC = HackEnrollment
+DEBUG_FLAG = -g
+COMP_FLAG = -std=c99 -lm -Itool -Wall -pedantic-errors -Werror -DNDEBUG
+TARGET = ExampleTest/out.txt
 HACK.C = ./tool/HackEnrollment.c
 HACK.H = ./tool/HackEnrollment.h
 STUDENT.C = ./tool/Student.c
 STUDENT.H = ./tool/Student.h
 MAIN = ./tool/main.c
-EXEC = a #name of the execution file -- I saw there is already HackEnrollment.exe so didn't want to ruin it...
+DIRECTION = shohamkalman/home/mtm/public/2223b/ex1
 
 
-HackEnrollment: HackEnrollment.o IsraeliQueue.o main.o Student.o
-	gcc main.o HackEnrollment.o IsraeliQueue.o Student.o -o EXEC
+$(PROG) : $(OBJS)
+	$(CC) $(DEBUG_FLAG) $(OBJS) -o $(EXEC)
 
-main.o: $(MAIN) $(HACK.H) $(STUDENT.H) IsraeliQueue.h
-	gcc -c $(MAIN)
-
-HackEnrollment.o: $(HACK.C) $(HACK.H) $(STUDENT.H) IsraeliQueue.h
-	gcc -c $(HACK.C)
+HackEnrollment.o: $(HACK.C) $(STUDENT.H) $(HACK.H) IsraeliQueue.h
+	$(CC) -c $(DEBUG_FLAG) $(COMP_FLAG) $(HACK.C)
 
 IsraeliQueue.o: IsraeliQueue.c IsraeliQueue.h
-	gcc -c IsraeliQueue.c
+	$(CC) -c $(DEBUG_FLAG) $(COMP_FLAG) IsraeliQueue.c
 
-Student.o: $(HACK.C) $(HACK.H) $(STUDENT.H) IsraeliQueue.h
-	gcc -c $(STUDENT.C)
+main.o: $(MAIN) $(HACK.H) $(STUDENT.H)
+	$(CC) -c $(DEBUG_FLAG) $(COMP_FLAG) $(MAIN)
+
+Student.o: $(STUDENT.H) $(STUDENT.C) $(HACK.H) IsraeliQueue.h
+	$(CC) -c $(DEBUG_FLAG) $(COMP_FLAG) $(STUDENT.C)
 
 clean:
-	rm -f HackEnrollment.o IsraeliQueue.o main.o Student.o HackEnrollment
-
-
-
-
+	rm -f $(OBJS) $(EXEC)
