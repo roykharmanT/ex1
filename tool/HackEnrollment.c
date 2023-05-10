@@ -100,7 +100,6 @@ void putHackersInEnrollment(FILE* hackers, EnrollmentSystem sys)
     }
     char* result = NULL;
     int num_hackers = getNumHackers(hackers);
-    sys->hackers = (Hacker*)malloc(sizeof(Hacker)*num_hackers);
     for(int i = 0; i < num_hackers; ++i)
     {
         Hacker hacker = mallocHacker(sys->index_courses, sys->index_students);
