@@ -3,14 +3,14 @@ OBJS = main.o HackEnrollment.o IsraeliQueue.o Student.o
 PROG = program
 EXEC = HackEnrollment
 DEBUG_FLAG = -g
-COMP_FLAG = -std=c99 -lm -Itool -Wall -pedantic-errors -Werror -DNDEBUG
+COMP_FLAG = -std=c99 -lm -Itool -Wall -pedantic-errors -Werror -DNDEBUG $(DIRECTION)
 TARGET = ExampleTest/out.txt
 HACK.C = ./tool/HackEnrollment.c
 HACK.H = ./tool/HackEnrollment.h
 STUDENT.C = ./tool/Student.c
 STUDENT.H = ./tool/Student.h
 MAIN = ./tool/main.c
-DIRECTION = shohamkalman/home/mtm/public/2223b/ex1
+DIRECTION = new_home/courses/mtm/public/2223b/ex1
 
 
 $(PROG) : $(OBJS)

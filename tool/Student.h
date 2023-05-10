@@ -53,5 +53,5 @@ int stringToInt(const char* str);
 
 int getNumOfStringsInTheLine(char* line);
 
-
+void copyString(char* dest, char* src);
 #endif //EX1_STUDENT_H

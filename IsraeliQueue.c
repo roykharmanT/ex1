@@ -175,6 +175,8 @@ IsraeliQueueError IsraeliQueueEnqueue(IsraeliQueue q, void *ptr)
     }
     
     Item item_to_insert = (Item)malloc(sizeof(*item_to_insert));
+    if(item_to_insert == NULL)
+        return ISRAELIQUEUE_ALLOC_FAILED;
     item_to_insert ->friends_in_queue = 0;
     item_to_insert ->rivals_in_queue = 0;
     item_to_insert -> next = NULL;

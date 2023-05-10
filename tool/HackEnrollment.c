@@ -67,6 +67,8 @@ void putCoursesInEnrollment(FILE* courses, EnrollmentSystem enrollmentSystem)
             if (result == NULL)
                 break;
             Course course_into_enrollment = parseLineToCourse(course_line);
+            if(course_into_enrollment == NULL)
+                break;
             enrollmentSystem->courses[enrollmentSystem->index_courses] = course_into_enrollment;
             enrollmentSystem->index_courses++;
         }
@@ -113,6 +115,7 @@ void putHackersInEnrollment(FILE* hackers, EnrollmentSystem sys)
         sys->hackers[i] = hacker;
     }
     sys->index_hackers = num_hackers;
+    free(line);
     rewind(hackers);
 }
 
@@ -126,6 +129,7 @@ Course parseLineToCourse(char* line)
     course->course_queue = IsraeliQueueCreate(friendship_measures, compareId, FRIENDSHIP_THRESHOLD, RIVAL_THRESHOLD);
     if(course->course_queue == NULL){
         free(course);
+        free(friendship_measures);
         return NULL;
     }
     char* space = " ";
@@ -462,11 +466,12 @@ EnrollmentSystem readEnrollment(EnrollmentSystem sys, FILE* queues)
                 break;
             Student student = findStudentById(sys, token);
             if(student == NULL)
-                continue;//what happens if the student is not in the enrollment
+                continue;//it means that the student is not in the enrollment system
             IsraeliQueueEnqueue(course->course_queue, student);
         }
 
     }
+    free(line);
     return sys;
 }
 

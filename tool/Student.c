@@ -61,21 +61,35 @@ Student parseLineToStudent(char* line, int max_str_length)
         return NULL;
     char* space = " ";
     char* token = strtok(line, space);
-    new_student->student_id = strdup(token);
+    copyString(new_student->student_id, token);
+    //new_student->student_id = strdup(token);
     token = strtok(NULL, space);
     new_student->total_credits = atoi(token);
     token = strtok(NULL, space);
     new_student->gpa = atoi(token);
     token = strtok(NULL, space);
-    new_student->first_name = strdup(token);
+    copyString(new_student->first_name, token);
+    //new_student->first_name = strdup(token);
     token = strtok(NULL, space);
-    new_student->surname = strdup(token);
+    copyString(new_student->surname, token);
+    //new_student->surname = strdup(token);
     token = strtok(NULL, space);
-    new_student->city = strdup(token);
+    copyString(new_student->city, token);
+    //new_student->city = strdup(token);
     token = strtok(NULL, space);
-    new_student->department = strdup(token);
+    copyString(new_student->department, token);
+    //new_student->department = strdup(token);
     new_student->is_hacker = NULL;
     return new_student;
+}
+
+void copyString(char* dest, char* src)
+{
+    int i = 0;
+    while(src[i]){
+        dest[i] = src [i];
+        i++;
+    }
 }
 
 int stringToInt(const char* str)
@@ -197,7 +211,8 @@ void parseLineToHacker(Hacker hacker, char* line, int line_number)
             case 0: ;
                 token = strtok(line, space);
                 token[strcspn(token, "\n")] = 0;
-                hacker->hacker_id = strdup(token);
+                copyString(hacker->hacker_id, token);
+                //hacker->hacker_id = strdup(token);
                 break;
             case 1: ;
                 putCoursesLineIntoHacker(hacker, line);
@@ -235,10 +250,12 @@ void putLineInIdArray(Hacker hacker, char* line, char type)
     while(token){
         token[strcspn(token, "\n")] = 0;
         if (type == 'f') {
-            hacker->friends_id[index++] = strdup(token);
+            copyString(hacker->friends_id[index++], token);
+            //hacker->friends_id[index++] = strdup(token);
         }
         else {
-            hacker->rivals_id[index++] = strdup(token);
+            copyString(hacker->rivals_id[index++], token);
+            //hacker->rivals_id[index++] = strdup(token);
         }
         token = strtok(NULL, space);
     }
