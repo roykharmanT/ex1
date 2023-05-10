@@ -44,12 +44,42 @@ IsraeliQueue IsraeliQueueCreate(FriendshipFunction *friend_function,
     return new_queue;
 }
 
+static FriendshipFunction* cloneFriendshipMeasures(IsraeliQueue q)
+{
+    int array_size = getFriendshipMeasureSize(q->friendship_measures);
+    FriendshipFunction* clone = (FriendshipFunction*)malloc(sizeof(FriendshipFunction)*(array_size + 1));
+    for(int i = 0; i < array_size; ++i){
+        clone[i] = q->friendship_measures[i];
+    }
+    clone[array_size] = 0;
+    return clone;
+}
+
+static Item cloneItems(Item item){
+    Item new_item = (Item)malloc(sizeof(*new_item));
+    if(!new_item)
+        return NULL;
+    new_item->ptr = item->ptr;
+    new_item->friends_in_queue = item->friends_in_queue;
+    new_item->rivals_in_queue = item->rivals_in_queue;
+    if(item->next){
+        new_item->next = cloneItems(item->next);
+    }
+    else{
+        new_item->next = NULL;
+    }
+    return new_item;
+    
+}
+
 IsraeliQueue IsraeliQueueClone(IsraeliQueue q)
 {
     if(q==NULL)
         return NULL;
-    IsraeliQueue new_queue = IsraeliQueueCreate(q->friendship_measures, q->comparison_function,
+    FriendshipFunction* friendship_measures = cloneFriendshipMeasures(q);
+    IsraeliQueue new_queue = IsraeliQueueCreate(friendship_measures, q->comparison_function,
     q->rivalry_threshold, q->friendship_threshold);
+    new_queue->head = cloneItems(q->head);
     return new_queue;
 }
 
@@ -88,6 +118,7 @@ Item getRivalsBehind(IsraeliQueue q, Item friend, Item item_to_insert)
         if(rivalry_measure < q->rivalry_threshold && potential_rival->rivals_in_queue < RIVAL_QUOTA){
             return potential_rival;
         }
+        potential_rival = potential_rival->next;
     }
     return NULL;
 }
@@ -223,6 +254,7 @@ bool IsraeliQueueContains(IsraeliQueue q, void *ptr)
         if(q->comparison_function(compare_ptr, ptr)){
             return true;
         }
+        current = current->next;
     }
     return false;
 }
